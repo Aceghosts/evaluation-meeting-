@@ -611,78 +611,6 @@ section{position:relative}
 .bcard:hover .go{transform:rotate(45deg)}
 @media (max-width:760px){.bento{grid-template-columns:1fr}}
 
-/* ---------- the ask ---------- */
-.ask{padding:120px 0 30px;overflow:hidden}
-.ask .wrap{position:relative;z-index:1}
-.ask h2{font-size:clamp(34px,4.6vw,58px);margin-top:22px}
-.ladder{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  gap:clamp(10px,2vw,22px);align-items:end;
-  margin:56px 0 20px;
-}
-.rung{text-align:center}
-.bar-track{
-  height:clamp(120px,24vh,210px);
-  display:flex;align-items:flex-end;
-  border-radius:14px;
-  background:rgba(244,237,228,.04);
-}
-.bar{
-  display:block;width:100%;border-radius:12px;
-  background:var(--surface-2);border:1px solid var(--line);
-  transform:scaleY(0);transform-origin:bottom center;
-  will-change:transform;
-}
-.rung.is-ask .bar{
-  background:linear-gradient(180deg,var(--amber),var(--ember));
-  border:none;
-  box-shadow:0 10px 40px rgba(255,90,31,.35);
-}
-.rung b{
-  display:block;
-  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
-  font-size:clamp(15px,2vw,24px);letter-spacing:-.02em;
-  margin-top:12px;
-}
-.rung small{
-  display:block;margin-top:5px;
-  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--muted);
-}
-.rung.is-ask small{color:var(--ember)}
-.ladder-note{color:var(--muted);max-width:62ch;margin:0 0 48px;font-size:15px}
-.ladder-note strong{color:var(--cream);font-weight:600}
-.role-card{
-  position:relative;overflow:hidden;
-  background:var(--surface);border:1px solid var(--line);border-radius:22px;
-  padding:30px 32px;margin-bottom:18px;
-}
-.role-card::before{
-  content:"";position:absolute;width:300px;height:300px;border-radius:50%;
-  right:-120px;top:-120px;
-  background:radial-gradient(circle,rgba(255,90,31,.22),transparent 65%);
-  filter:blur(40px);pointer-events:none;
-}
-.role-head small{
-  font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--ember);
-}
-.role-head h3{
-  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
-  font-size:clamp(22px,2.6vw,30px);letter-spacing:-.02em;
-  margin:8px 0 24px;
-}
-.role-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;position:relative}
-.role-cols small{
-  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--amber);
-}
-.role-cols p{color:var(--muted);font-size:14px;line-height:1.65;margin:8px 0 0}
-@media (max-width:760px){
-  .role-cols{grid-template-columns:1fr}
-  .rung b{font-size:14px}
-}
-
 /* ---------- contact ---------- */
 .contact{
   padding:170px 0 150px;text-align:center;overflow:hidden;
@@ -752,7 +680,7 @@ footer{
       <a href="#journey">The Year</a>
       <a href="#next">Next Year</a>
     </div>
-    <a class="btn btn-primary magnetic" href="#ask">The Ask</a>
+    <a class="btn btn-primary magnetic" href="ask.html" target="_blank" rel="noopener">The Ask</a>
   </div>
 </nav>
 
@@ -988,70 +916,6 @@ footer{
   </div>
 </section>
 
-<!-- ================= THE ASK ================= -->
-<section class="ask" id="ask">
-  <div class="section-glow" style="width:640px;height:640px;left:50%;top:-40px;margin-left:-320px;background:radial-gradient(circle at 50% 35%,rgba(255,90,31,.13),transparent 70%)" aria-hidden="true"></div>
-  <div class="wrap">
-    <div class="eyebrow rv">The Ask</div>
-    <h2 class="display rv">Alignment, <em class="grad-text">in numbers</em>.</h2>
-
-    <div class="ladder rv">
-      <div class="rung">
-        <div class="bar-track"><i class="bar" style="height:50%"></i></div>
-        <b>PKR <span class="acount" data-to="150">0</span>K</b><small>Previous</small>
-      </div>
-      <div class="rung">
-        <div class="bar-track"><i class="bar" style="height:73%"></i></div>
-        <b>PKR <span class="acount" data-to="220">0</span>K</b><small>Current</small>
-      </div>
-      <div class="rung">
-        <div class="bar-track"><i class="bar" style="height:93%"></i></div>
-        <b>PKR <span class="acount" data-to="280">0</span>K</b><small>Market Offer</small>
-      </div>
-      <div class="rung is-ask">
-        <div class="bar-track"><i class="bar" style="height:100%"></i></div>
-        <b>PKR <span class="acount" data-to="300">0</span>K</b><small>The Ask</small>
-      </div>
-    </div>
-    <p class="ladder-note rv">The market has already priced this role: an external offer of 280
-    was on the table, and the company chose to counter it. The ask closes the gap at 300.
-    <strong>Manager output, delivered for a year on a team lead salary.</strong></p>
-
-    <div class="role-card rv">
-      <div class="role-head">
-        <small>The Title</small>
-        <h3>AI Animation &amp; Production Manager</h3>
-      </div>
-      <div class="role-cols">
-        <div><small>What stays</small><p>Team leadership, delivery quality, and client output. The playing coach does not leave the floor.</p></div>
-        <div><small>What gets formalized</small><p>AI strategy ownership, pipeline authority, and cross-department SLAs that already exist in practice.</p></div>
-        <div><small>What becomes possible</small><p>AI production pitched as a client service, stronger talent, and a competitive position no other agency in Pakistan holds.</p></div>
-      </div>
-    </div>
-
-    <div class="bento" style="margin-top:18px">
-      <div class="bcard rv">
-        <p>Senior hours are being spent on execution a junior can own. One junior frees that
-        capacity for AI strategy, creative direction, and higher-value output, multiplying
-        department impact without senior headcount cost.</p>
-        <h3><small>Ask 01</small>A junior animator</h3>
-      </div>
-      <div class="bcard rv">
-        <p>Animation absorbs upstream delays and then owns the crunch. Clear handoff SLAs
-        between design and animation protect both teams and make delivery predictable for
-        everyone, including the client.</p>
-        <h3><small>Ask 02</small>Clear SLAs with design</h3>
-      </div>
-      <div class="bcard wide rv">
-        <p>Not an entitlement. A recognition that a 360 degree transformation happened: a
-        national award, an AI pipeline the industry is still catching up to, and PKR 5 million
-        in revenue attached to it. The Alto marks that the company saw it.</p>
-        <h3><small>Ask 03 · Performance Reward</small>The Alto</h3>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ================= CONTACT ================= -->
 <section class="contact" id="contact">
   <div class="contact-glow"></div>
@@ -1067,7 +931,7 @@ footer{
       backed this time by a track record.
     </p>
     <div class="contact-ctas rv">
-      <a class="btn btn-primary magnetic" href="#ask">Revisit the ask</a>
+      <a class="btn btn-primary magnetic" href="ask.html" target="_blank" rel="noopener">Open the ask</a>
       <a class="btn btn-ghost magnetic" href="https://concave-app.vercel.app/" target="_blank" rel="noopener">See Concave live</a>
     </div>
     <div class="contact-links rv">
@@ -1293,31 +1157,6 @@ var PROJECTS = [
   { t:"Concave",            c:"AI Analysis Engine",    f:"system", g:"linear-gradient(150deg,#FF5A1F,#FFB35C)", l:"◎",
     d:"An AI engine that scores briefs before production begins.", v:"https://concave-app.vercel.app/" }
 ];
-
-/* ---------- ask ladder: bars rise, numbers count ---------- */
-(function(){
-  var bars = document.querySelectorAll(".ladder .bar");
-  if (!bars.length) return;
-  function fillNow(){
-    bars.forEach(function(b){ b.style.transform = "scaleY(1)"; });
-    document.querySelectorAll(".acount").forEach(function(el){ el.textContent = el.dataset.to; });
-  }
-  if (reduce) { fillNow(); return; }
-  ScrollTrigger.create({
-    trigger: ".ladder", start: "top 82%", once: true,
-    onEnter: function(){
-      gsap.to(bars, { scaleY: 1, duration: 1.1, ease: "power3.out", stagger: .13 });
-      document.querySelectorAll(".acount").forEach(function(el){
-        var to = parseInt(el.dataset.to, 10);
-        var obj = { v: 0 };
-        gsap.to(obj, {
-          v: to, duration: 1.5, ease: "power3.out",
-          onUpdate: function(){ el.textContent = Math.round(obj.v); }
-        });
-      });
-    }
-  });
-})();
 
 /* ================= SCROLL-DRIVEN PLAYER CYLINDER ================= */
 /* The figure stays centered; the glass players orbit it on a cylinder.

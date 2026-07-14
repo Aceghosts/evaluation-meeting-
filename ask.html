@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Ask | Abbas Mustafa</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0908;
+  --surface:#161110;
+  --surface-2:#1E1715;
+  --line:rgba(244,237,228,.09);
+  --cream:#F4EDE4;
+  --muted:#9A8E85;
+  --ember:#FF5A1F;
+  --amber:#FFB35C;
+  --deep:#7A2408;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'Instrument Sans',sans-serif;
+  font-size:16px;line-height:1.7;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--ember);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+body::after{
+  content:"";position:fixed;inset:-100px;
+  pointer-events:none;z-index:9998;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  opacity:.035;
+  animation:grain 1.2s steps(6) infinite;
+}
+@keyframes grain{
+  0%{transform:translate(0,0)}20%{transform:translate(-30px,40px)}40%{transform:translate(50px,-25px)}
+  60%{transform:translate(-40px,-40px)}80%{transform:translate(25px,50px)}100%{transform:translate(0,0)}
+}
+.wrap{width:min(1080px,92vw);margin:0 auto}
+.eyebrow{
+  font-family:'Space Grotesk',monospace;
+  font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ember);
+  display:flex;align-items:center;gap:12px;
+}
+.eyebrow::before{content:"";width:26px;height:1px;background:linear-gradient(90deg,var(--ember),var(--amber))}
+.display{
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:700;letter-spacing:-.025em;line-height:1.06;
+}
+.display em{font-style:italic;font-weight:650}
+.grad-text{
+  background:linear-gradient(96deg,var(--ember) 0%,var(--amber) 38%,#FFEFD6 50%,var(--amber) 62%,var(--ember) 100%);
+  background-size:250% auto;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  padding:.08em .14em;margin:-.08em -.14em;
+  animation:shine 2.2s linear infinite alternate;
+}
+@keyframes shine{to{background-position:100% 0}}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:11px 24px;border-radius:100px;
+  border:1px solid var(--line);color:var(--cream);
+  transition:border-color .25s var(--ease-soft);
+  white-space:nowrap;
+}
+.btn:hover{border-color:rgba(255,179,92,.45)}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:22px 0;
+}
+.logo{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;letter-spacing:-.02em;
+}
+.logo-dot{
+  width:9px;height:9px;border-radius:50%;
+  background:linear-gradient(120deg,var(--ember),var(--amber));
+  box-shadow:0 0 14px rgba(255,90,31,.8);
+}
+main{position:relative;padding:60px 0 60px;overflow:hidden}
+.glow{
+  position:absolute;border-radius:50%;filter:blur(90px);
+  pointer-events:none;z-index:0;
+}
+main .wrap{position:relative;z-index:1}
+h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
+.lead{color:var(--muted);max-width:60ch;margin-bottom:56px}
+
+.ladder{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(10px,2vw,22px);align-items:end;
+  margin:10px 0 20px;
+}
+.rung{text-align:center}
+.bar-track{
+  height:clamp(130px,26vh,220px);
+  display:flex;align-items:flex-end;
+  border-radius:14px;
+  background:rgba(244,237,228,.04);
+}
+.bar{
+  display:block;width:100%;border-radius:12px;
+  background:var(--surface-2);border:1px solid var(--line);
+  transform:scaleY(0);transform-origin:bottom center;
+  will-change:transform;
+}
+.rung.is-ask .bar{
+  background:linear-gradient(180deg,var(--amber),var(--ember));
+  border:none;
+  box-shadow:0 10px 40px rgba(255,90,31,.35);
+}
+.rung b{
+  display:block;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
+  font-size:clamp(15px,2.2vw,26px);letter-spacing:-.02em;
+  margin-top:12px;
+}
+.rung small{
+  display:block;margin-top:5px;
+  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);
+}
+.rung.is-ask small{color:var(--ember)}
+.ladder-note{color:var(--muted);max-width:62ch;margin:0 0 54px;font-size:15px}
+.ladder-note strong{color:var(--cream);font-weight:600}
+
+.role-card{
+  position:relative;overflow:hidden;
+  background:var(--surface);border:1px solid var(--line);border-radius:22px;
+  padding:30px 32px;margin-bottom:18px;
+}
+.role-card::before{
+  content:"";position:absolute;width:300px;height:300px;border-radius:50%;
+  right:-120px;top:-120px;
+  background:radial-gradient(circle,rgba(255,90,31,.22),transparent 65%);
+  filter:blur(40px);pointer-events:none;
+}
+.role-head small{
+  font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ember);
+}
+.role-head h2{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:clamp(22px,2.6vw,30px);letter-spacing:-.02em;
+  margin:8px 0 24px;
+}
+.role-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;position:relative}
+.role-cols small{
+  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--amber);
+}
+.role-cols p{color:var(--muted);font-size:14px;line-height:1.65;margin:8px 0 0}
+
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:18px}
+.card{
+  position:relative;
+  display:flex;flex-direction:column;justify-content:space-between;gap:34px;
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  padding:28px 30px;
+  transition:border-color .3s var(--ease-soft);
+}
+.card:hover{border-color:rgba(255,179,92,.35)}
+.card.wide{grid-column:1/-1}
+.card p{color:var(--muted);font-size:14px;line-height:1.65;margin:0;max-width:70ch}
+.card h3{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:clamp(19px,2.2vw,25px);letter-spacing:-.02em;
+}
+.card h3 small{
+  display:block;
+  font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ember);margin-bottom:8px;
+}
+.quote{
+  text-align:center;margin:70px 0 10px;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:clamp(22px,3vw,34px);letter-spacing:-.02em;
+}
+footer{
+  border-top:1px solid var(--line);
+  padding:24px 0;margin-top:50px;
+}
+.foot-inner{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.rv{opacity:0;transform:translateY(24px);will-change:transform,opacity}
+@media (max-width:760px){
+  .role-cols{grid-template-columns:1fr}
+  .cards{grid-template-columns:1fr}
+  .rung b{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  body::after,.grad-text{animation:none !important}
+  .rv{opacity:1;transform:none}
+  .bar{transform:scaleY(1) !important}
+  *{transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap topbar">
+  <a class="logo" href="index.html">Abbas Mustafa <span class="logo-dot"></span></a>
+  <a class="btn" href="index.html">Back to the case</a>
+</div>
+
+<main>
+  <div class="glow" style="width:640px;height:640px;left:50%;top:-80px;margin-left:-320px;background:radial-gradient(circle at 50% 35%,rgba(255,90,31,.14),transparent 70%)" aria-hidden="true"></div>
+  <div class="glow" style="width:480px;height:480px;right:-160px;bottom:0;background:radial-gradient(circle,rgba(122,36,8,.35),transparent 70%)" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="eyebrow rv">The Ask · Performance Review 2026</div>
+    <h1 class="display rv">Alignment, <em class="grad-text">in numbers</em>.</h1>
+    <p class="lead rv">Everything on the main page is the proof. This page is what the proof
+    is worth.</p>
+
+    <div class="ladder rv">
+      <div class="rung">
+        <div class="bar-track"><i class="bar" style="height:50%"></i></div>
+        <b>PKR <span class="acount" data-to="150">0</span>K</b><small>Previous</small>
+      </div>
+      <div class="rung">
+        <div class="bar-track"><i class="bar" style="height:73%"></i></div>
+        <b>PKR <span class="acount" data-to="220">0</span>K</b><small>Current</small>
+      </div>
+      <div class="rung">
+        <div class="bar-track"><i class="bar" style="height:93%"></i></div>
+        <b>PKR <span class="acount" data-to="280">0</span>K</b><small>Market Offer</small>
+      </div>
+      <div class="rung is-ask">
+        <div class="bar-track"><i class="bar" style="height:100%"></i></div>
+        <b>PKR <span class="acount" data-to="300">0</span>K</b><small>The Ask</small>
+      </div>
+    </div>
+    <p class="ladder-note rv">The market has already priced this role: an external offer of 280
+    was on the table, and the company chose to counter it. The ask closes the gap at 300.
+    <strong>Manager output, delivered for a year on a team lead salary.</strong></p>
+
+    <div class="role-card rv">
+      <div class="role-head">
+        <small>The Title</small>
+        <h2>AI Animation &amp; Production Manager</h2>
+      </div>
+      <div class="role-cols">
+        <div><small>What stays</small><p>Team leadership, delivery quality, and client output. The playing coach does not leave the floor.</p></div>
+        <div><small>What gets formalized</small><p>AI strategy ownership, pipeline authority, and cross-department SLAs that already exist in practice.</p></div>
+        <div><small>What becomes possible</small><p>AI production pitched as a client service, stronger talent, and a competitive position no other agency in Pakistan holds.</p></div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card rv">
+        <p>Senior hours are being spent on execution a junior can own. One junior frees that
+        capacity for AI strategy, creative direction, and higher-value output, multiplying
+        department impact without senior headcount cost.</p>
+        <h3><small>Ask 01</small>A junior animator</h3>
+      </div>
+      <div class="card rv">
+        <p>Animation absorbs upstream delays and then owns the crunch. Clear handoff SLAs
+        between design and animation protect both teams and make delivery predictable for
+        everyone, including the client.</p>
+        <h3><small>Ask 02</small>Clear SLAs with design</h3>
+      </div>
+      <div class="card wide rv">
+        <p>Not an entitlement. A recognition that a 360 degree transformation happened: a
+        national award, an AI pipeline the industry is still catching up to, and PKR 5 million
+        in revenue attached to it. The Alto marks that the company saw it.</p>
+        <h3><small>Ask 03 · Performance Reward</small>The Alto</h3>
+      </div>
+    </div>
+
+    <p class="quote rv">"I'm not asking for validation.<br>I'm asking for <em class="grad-text">alignment</em>."</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div>© 2026 Abbas Mustafa · Convex Interactive, Karachi</div>
+    <div>For the room, not the feed.</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+"use strict";
+var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+var counts = document.querySelectorAll(".acount");
+if (reduce) {
+  counts.forEach(function(el){ el.textContent = el.dataset.to; });
+  return;
+}
+gsap.set(".rv", { opacity: 0, y: 24 });
+gsap.to(".rv", { opacity: 1, y: 0, duration: .9, ease: "power3.out", stagger: .09, delay: .15 });
+gsap.to(".ladder .bar", { scaleY: 1, duration: 1.1, ease: "power3.out", stagger: .13, delay: .55 });
+counts.forEach(function(el){
+  var to = parseInt(el.dataset.to, 10);
+  var obj = { v: 0 };
+  gsap.to(obj, {
+    v: to, duration: 1.5, ease: "power3.out", delay: .7,
+    onUpdate: function(){ el.textContent = Math.round(obj.v); }
+  });
+});
+})();
+</script>
+</body>
+</html>
