@@ -185,8 +185,9 @@ section{position:relative}
 .hero-copy{max-width:100%}
 @media (min-width:981px){ .hero-copy{max-width:58%} }
 .hero h1{
-  font-size:clamp(42px,7.2vw,96px);
-  margin:26px 0 28px;
+  /* sized so each authored line renders unwrapped beside the portrait */
+  font-size:clamp(38px,4.8vw,68px);
+  margin:24px 0 26px;
 }
 .hero-sub{
   color:var(--muted);font-size:17px;max-width:480px;margin-bottom:36px;
