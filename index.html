@@ -266,9 +266,21 @@ section{position:relative}
   50%{box-shadow:0 0 0 6px rgba(91,226,139,0)}
 }
 @media (max-width:980px){
-  .portrait{opacity:.32;right:-14vw;width:min(64vw,380px)}
-  .badge{right:16px;bottom:110px}
-  .hero-ring{right:-18vw}
+  .hero{padding-top:110px}
+  .hero-ring{display:none}
+  /* portrait joins the flow below the copy, centered and full strength */
+  .portrait{
+    position:relative;right:auto;bottom:auto;
+    width:min(76vw,340px);
+    margin:34px auto 0;
+  }
+  .badge{
+    position:static;
+    width:max-content;max-width:92vw;
+    margin:14px auto 0;
+  }
+  .proof-pill{white-space:normal;line-height:1.7;max-width:100%}
+  .hero-tags{margin-top:40px}
 }
 
 /* hero skill tags */
@@ -458,7 +470,14 @@ section{position:relative}
     perspective:none;
     background:none;
   }
-  .scene::before{display:none}
+  /* the scene photo becomes a banner strip above the stacked cards */
+  .scene::before{
+    content:"";position:static;display:block;
+    aspect-ratio:3/1;border-radius:16px;
+    background:url("images/scene.jpg") center/cover no-repeat;
+    border:1px solid var(--line);
+    pointer-events:none;
+  }
   .gcard{
     position:static;width:100% !important;
     transform:none !important;opacity:1 !important;filter:none !important;
@@ -666,11 +685,6 @@ footer{
   <div class="orb orb-b" data-mx="-20" data-my="-14"></div>
   <div class="hero-ring" data-mx="12" data-my="9"></div>
 
-  <div class="portrait" id="portrait" data-mx="-8" data-my="-5">
-    <img id="portraitImg" alt="Abbas Mustafa" src="images/hero.jpg">
-  </div>
-  <div class="badge" id="heroBadge"><span class="pulse"></span> itel S26 Ultra · Award Winner</div>
-
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <div class="proof-pill" id="heroPill"><span class="trophies">🏆</span> itel S26 Ultra · Pakistan Digital Award Winner</div>
@@ -697,6 +711,12 @@ footer{
       <div class="tag"><span class="num">#04</span> Systems &amp; Tools</div>
     </div>
   </div>
+
+  <!-- absolute on desktop, in-flow below the copy on mobile -->
+  <div class="portrait" id="portrait" data-mx="-8" data-my="-5">
+    <img id="portraitImg" alt="Abbas Mustafa" src="images/hero.jpg">
+  </div>
+  <div class="badge" id="heroBadge"><span class="pulse"></span> itel S26 Ultra · Award Winner</div>
 </header>
 
 <!-- ================= MARQUEE ================= -->
