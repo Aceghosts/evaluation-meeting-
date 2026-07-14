@@ -90,6 +90,7 @@ body::after{
   margin-bottom:26px;
 }
 .proof-pill .trophies{letter-spacing:.05em}
+.proof-pill,.badge{cursor:pointer}
 .fade-text{
   background:linear-gradient(180deg,var(--cream) 25%,rgba(244,237,228,.28));
   -webkit-background-clip:text;background-clip:text;
@@ -1171,7 +1172,14 @@ CYL.forEach(function(p, i){
   card.innerHTML =
     art +
     '<span class="g-tt"><b>' + p.t + '</b><i>' + p.d + '</i></span>';
-  card.addEventListener("click", function(){ if (!didSpin && p.v) openLightbox(p); });
+  card.addEventListener("click", function(){
+    if (didSpin) return;
+    if (p.c.indexOf("🏆") > -1) {
+      var r = card.getBoundingClientRect();
+      chipConfetti(r.left + r.width / 2, r.top + r.height / 3);
+    }
+    if (p.v) openLightbox(p);
+  });
   if (finePointer && !reduce && dot) {
     card.addEventListener("mouseenter", function(){ dot.classList.add("is-hover"); });
     card.addEventListener("mouseleave", function(){ dot.classList.remove("is-hover"); });
@@ -1315,13 +1323,17 @@ function chipConfetti(x, y){
   }
 }
 document.addEventListener("click", function(e){
-  var chip = e.target.closest(".chips i");
-  if (!chip || reduce) return;
-  chip.classList.remove("shine");
-  void chip.offsetWidth;   /* restart the sweep animation */
-  chip.classList.add("shine");
-  if (chip.textContent.indexOf("🏆") > -1) {
-    var r = chip.getBoundingClientRect();
+  if (reduce) return;
+  var el = e.target.closest(".chips i, .proof-pill, .badge");
+  if (!el) return;
+  if (el.matches(".chips i")) {
+    el.classList.remove("shine");
+    void el.offsetWidth;   /* restart the sweep animation */
+    el.classList.add("shine");
+  }
+  /* anything carrying the trophy celebrates; the badge counts too */
+  if (el.textContent.indexOf("🏆") > -1 || el.classList.contains("badge")) {
+    var r = el.getBoundingClientRect();
     chipConfetti(r.left + r.width / 2, r.top + r.height / 2);
   }
 });
