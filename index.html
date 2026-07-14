@@ -394,17 +394,17 @@ section{position:relative}
   perspective:1400px;
   cursor:grab;
   touch-action:pan-y;
-  /* fit the photo by height so the full frame always shows, centered */
-  background:url("images/scene.jpg") center center/auto 100% no-repeat;
+  /* 3:1 source photo matches the wide scene, so cover crops almost nothing */
+  background:url("images/scene.jpg") center center/cover no-repeat;
 }
 .scene:active{cursor:grabbing}
-/* vignette: fade the photo's sides into the page black, blend top and bottom */
+/* vignette: soft edge blend into the page black */
 .scene::before{
   content:"";position:absolute;inset:0;z-index:1;
   background:
-    linear-gradient(to right,var(--bg),rgba(11,9,8,0) 30%,rgba(11,9,8,0) 70%,var(--bg)),
+    linear-gradient(to right,var(--bg),rgba(11,9,8,0) 10%,rgba(11,9,8,0) 90%,var(--bg)),
     linear-gradient(to bottom,var(--bg),rgba(11,9,8,0) 18%,rgba(11,9,8,0) 84%,var(--bg)),
-    linear-gradient(rgba(11,9,8,.18),rgba(11,9,8,.18));
+    linear-gradient(rgba(11,9,8,.16),rgba(11,9,8,.16));
   pointer-events:none;
 }
 /* cylinder members: transform written per scroll frame, so no transform transition */
