@@ -504,8 +504,16 @@ section{position:relative}
   font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);
 }
+/* soft light pools that keep the lower sections from going flat black */
+.section-glow{
+  position:absolute;border-radius:50%;
+  filter:blur(90px);
+  pointer-events:none;z-index:0;
+}
+.journey .wrap,.nextyear .wrap{position:relative;z-index:1}
+
 /* ---------- timeline ---------- */
-.journey{padding:120px 0}
+.journey{padding:120px 0;overflow:hidden}
 .journey h2{font-size:clamp(34px,4.6vw,58px);margin:22px 0 60px}
 .tl{position:relative;padding-left:44px}
 .tl::before{
@@ -544,7 +552,7 @@ section{position:relative}
 }
 
 /* ---------- next year bento ---------- */
-.nextyear{padding:120px 0 40px}
+.nextyear{padding:120px 0 40px;overflow:hidden}
 .nextyear h2{font-size:clamp(34px,4.6vw,58px);margin-top:22px}
 .bento{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:54px}
 .bcard{
@@ -774,6 +782,9 @@ footer{
 
 <!-- ================= JOURNEY ================= -->
 <section class="journey" id="journey">
+  <div class="section-glow" style="width:560px;height:560px;left:-160px;top:6%;background:radial-gradient(circle at 45% 45%,rgba(255,90,31,.16),transparent 70%)" aria-hidden="true"></div>
+  <div class="section-glow" style="width:640px;height:640px;right:-200px;top:44%;background:radial-gradient(circle at 50% 50%,rgba(122,36,8,.34),transparent 70%)" aria-hidden="true"></div>
+  <div class="section-glow" style="width:480px;height:480px;left:30%;bottom:-140px;background:radial-gradient(circle at 50% 50%,rgba(255,179,92,.1),transparent 70%)" aria-hidden="true"></div>
   <div class="wrap">
     <div class="eyebrow rv">The Year</div>
     <h2 class="display rv">Promise → <em class="grad-text">proof</em>.</h2>
@@ -827,6 +838,8 @@ footer{
 
 <!-- ================= NEXT YEAR ================= -->
 <section class="nextyear" id="next">
+  <div class="section-glow" style="width:700px;height:700px;left:50%;top:30%;margin-left:-350px;background:radial-gradient(circle at 50% 40%,rgba(255,90,31,.13),transparent 70%)" aria-hidden="true"></div>
+  <div class="section-glow" style="width:460px;height:460px;right:-140px;bottom:-120px;background:radial-gradient(circle at 50% 50%,rgba(122,36,8,.3),transparent 70%)" aria-hidden="true"></div>
   <div class="wrap">
     <div class="eyebrow rv">Next Year</div>
     <h2 class="display rv">Five proposals, <em class="grad-text">on the table</em>.</h2>
