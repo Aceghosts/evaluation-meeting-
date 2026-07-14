@@ -461,27 +461,13 @@ section{position:relative}
   font-size:12.5px;line-height:1.55;
   color:rgba(244,237,228,.68);
 }
-/* small screens: the cylinder becomes a clean stack, no pinning */
+/* small screens: same orbiting cylinder, sized for the phone */
 @media (max-width:760px){
-  .scene{
-    width:auto;margin-left:0;height:auto;
-    display:grid;grid-template-columns:1fr;gap:14px;
-    padding:14px 4vw 6px;
-    perspective:none;
-    background:none;
-  }
-  /* the scene photo becomes a banner strip above the stacked cards */
-  .scene::before{
-    content:"";position:static;display:block;
-    aspect-ratio:3/1;border-radius:16px;
-    background:url("images/scene.jpg") center/cover no-repeat;
-    border:1px solid var(--line);
-    pointer-events:none;
-  }
-  .gcard{
-    position:static;width:100% !important;
-    transform:none !important;opacity:1 !important;filter:none !important;
-  }
+  .scene{height:clamp(420px,calc(100vh - 220px),640px)}
+  .gcard{width:210px;padding:14px}
+  .g-art{margin-bottom:11px}
+  .g-tt b{font-size:14px}
+  .g-tt i{font-size:11px}
 }
 
 /* ---------- video lightbox ---------- */
@@ -1189,8 +1175,7 @@ function cylLayout(rot){
 var spin = { rot: 0 };
 var rotAuto = 0, rotDrag = 0, lastRot = null;
 var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
-var wideScene = matchMedia("(min-width:761px)").matches;
-if (wideScene) {
+{
   cylLayout(0);
   new IntersectionObserver(function(entries){
     sceneVisible = entries[0].isIntersecting;
@@ -1202,7 +1187,7 @@ if (wideScene) {
       rot: 360, ease: "none",
       scrollTrigger: {
         trigger: ".work", start: "top top",
-        end: "+=" + (CYL.length * 420),
+        end: "+=" + (CYL.length * (innerWidth < 761 ? 300 : 420)),
         pin: true, scrub: true, anticipatePin: 1
       }
     });
