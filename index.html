@@ -407,60 +407,81 @@ section{position:relative}
   width:clamp(230px,30vw,320px);aspect-ratio:3/4;
   margin-left:calc(clamp(230px,30vw,320px) / -2);
   margin-top:calc(clamp(230px,30vw,320px) * 4 / 3 / -2);
-  border-radius:20px;overflow:hidden;
-  border:1px solid var(--line);
-  background:var(--surface-2);
+  border-radius:22px;overflow:hidden;
+  display:flex;flex-direction:column;gap:11px;
+  padding:14px;
+  border:1px solid rgba(244,237,228,.2);
+  /* faux glass: translucent layers over the pre-blurred orbs behind the stage —
+     real backdrop-filter on 10 3D-transformed cards kills the compositor */
+  background:
+    linear-gradient(135deg,rgba(244,237,228,.12),rgba(244,237,228,.03) 60%),
+    linear-gradient(rgba(22,17,16,.5),rgba(22,17,16,.5));
   transition:transform .55s var(--ease-out),opacity .55s var(--ease-out),filter .55s var(--ease-out),box-shadow .55s var(--ease-out);
   will-change:transform,opacity;
   user-select:none;-webkit-user-drag:none;
 }
+/* glass sheen */
+.card3d::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(125deg,rgba(255,255,255,.16),rgba(255,255,255,0) 42%);
+  pointer-events:none;z-index:1;
+}
 #stage.dragging .card3d{transition:none}
-.card3d .art{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
+.p-head{
+  display:flex;justify-content:space-between;align-items:center;flex:none;
+  font-family:'Space Grotesk',sans-serif;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);
+}
+.p-head b{color:var(--cream);font-weight:500}
+.p-art{
+  position:relative;flex:1;min-height:0;
+  border-radius:14px;overflow:hidden;
+  border:1px solid rgba(244,237,228,.12);
   background-size:cover;background-position:center;
-}
-/* legibility scrim over full-bleed (vertical) video thumbnails */
-.card3d.has-thumb .art::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(11,9,8,.65),rgba(11,9,8,.12) 45%,rgba(11,9,8,0) 65%);
-}
-/* centered play badge on video cards */
-.card3d.has-thumb .art::before{
-  content:"▶";
-  position:absolute;left:50%;top:50%;
-  width:40px;height:40px;margin:-20px 0 0 -20px;
-  border-radius:50%;z-index:1;
   display:flex;align-items:center;justify-content:center;
-  font-size:13px;color:var(--cream);
-  background:rgba(11,9,8,.5);border:1px solid rgba(244,237,228,.28);
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
-.card3d .letter{
+.p-art .letter{
   font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
-  font-size:170px;line-height:1;color:rgba(11,9,8,.25);
+  font-size:clamp(70px,9vw,110px);line-height:1;color:rgba(11,9,8,.28);
   letter-spacing:-.05em;user-select:none;
 }
-.card3d .cap{
-  position:absolute;left:10px;right:10px;bottom:10px;
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:13px 16px;border-radius:13px;
-  background:rgba(11,9,8,.55);border:1px solid rgba(244,237,228,.08);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+.p-meta{display:flex;flex-direction:column;gap:3px;flex:none;min-width:0}
+.p-meta b{
+  font-family:'Bricolage Grotesque',sans-serif;font-size:15.5px;font-weight:700;letter-spacing:-.01em;
+  line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.card3d .cap b{
-  font-family:'Bricolage Grotesque',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;
-  line-height:1.25;
+.p-meta span{
+  font-family:'Space Grotesk',sans-serif;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--amber);
 }
-.card3d .cap span{
-  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--amber);border:1px solid rgba(255,179,92,.3);border-radius:100px;
-  padding:4px 10px;white-space:nowrap;flex:none;
+.p-progress{
+  flex:none;height:3px;border-radius:3px;overflow:hidden;
+  background:rgba(244,237,228,.14);
 }
+.p-progress i{
+  display:block;height:100%;width:32%;border-radius:3px;
+  background:linear-gradient(90deg,var(--ember),var(--amber));
+}
+.card3d.is-active .p-progress i{animation:prog 22s linear infinite}
+@keyframes prog{from{width:5%}to{width:95%}}
+.p-controls{
+  display:flex;align-items:center;justify-content:space-between;
+  flex:none;padding:0 8px 2px;
+}
+.p-controls svg{
+  width:15px;height:15px;
+  fill:none;stroke:var(--muted);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
+}
+.p-play{
+  width:36px;height:36px;border-radius:50%;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(120deg,var(--ember),var(--amber));
+  box-shadow:0 6px 18px rgba(255,90,31,.35);
+}
+.p-play svg{width:13px;height:13px;stroke:#1A0C05;fill:#1A0C05}
 .card3d.is-active{
   box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 60px rgba(255,90,31,.18);
 }
-.card3d .cap{transition:opacity .3s var(--ease-soft)}
 .card3d .info{
   position:absolute;inset:0;z-index:2;
   display:flex;flex-direction:column;justify-content:flex-end;gap:9px;
@@ -470,7 +491,6 @@ section{position:relative}
   transition:opacity .35s var(--ease-soft);
 }
 .card3d.is-expanded .info{opacity:1}
-.card3d.is-expanded .cap{opacity:0}
 .card3d .info em{
   font-style:normal;font-family:'Space Grotesk',sans-serif;
   font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);
@@ -673,7 +693,7 @@ footer{
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
-  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text{animation:none !important}
+  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text,.p-progress i{animation:none !important}
   .rv{opacity:1;transform:none}
   .line>span{transform:none !important}
   *{transition-duration:.01ms !important}
@@ -812,6 +832,9 @@ footer{
       <button class="pill" data-f="system">Systems</button>
     </div>
   </div>
+  <!-- glow behind the glass cards so the blur has something to refract -->
+  <div class="orb" style="width:460px;height:460px;left:10%;top:26%;background:radial-gradient(circle at 40% 40%,rgba(255,90,31,.32),transparent 70%)" aria-hidden="true"></div>
+  <div class="orb" style="width:380px;height:380px;right:8%;top:10%;background:radial-gradient(circle at 60% 40%,rgba(255,179,92,.22),transparent 70%)" aria-hidden="true"></div>
   <div id="stage"></div>
   <div class="wrap work-foot">
     <button class="cnav magnetic" id="prevBtn" aria-label="Previous project">←</button>
@@ -1155,6 +1178,14 @@ var PROJECTS = [
     d:"Scores any campaign brief across six performance dimensions before production begins. Built at no cost to the company.", v:"https://concave-app.vercel.app/" }
 ];
 
+var ICONS = {
+  shuffle:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',
+  prev:'<svg viewBox="0 0 24 24"><path d="M19 20 9 12l10-8zM5 19V5"/></svg>',
+  play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  next:'<svg viewBox="0 0 24 24"><path d="m5 4 10 8-10 8zM19 5v14"/></svg>',
+  repeat:'<svg viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"/></svg>'
+};
+
 function isVideoUrl(v){ return /\.(mp4|webm|mov)(\?|$)/i.test(v) || /youtube\.com|youtu\.be|vimeo\.com/i.test(v); }
 function playLabel(v){
   if (!v) return "Video coming soon";
@@ -1183,18 +1214,23 @@ function buildCards(){
     var el = document.createElement("div");
     el.className = "card3d";
     var yt = (p.v || "").match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/);
-    var art;
+    var artStyle, artInner = "";
     if (yt) {
-      /* full-bleed art from the true-16:9 thumbnails (hq720, mqdefault fallback) —
-         no letterbox bars, gradient shows while images load */
-      el.className += " has-thumb";
+      /* true-16:9 thumbnails (hq720, mqdefault fallback) — no letterbox bars,
+         gradient shows while images load */
       var base = "https://img.youtube.com/vi/" + yt[1] + "/";
-      art = '<div class="art" style="background-image:url(' + base + 'hq720.jpg),url(' + base + 'mqdefault.jpg),' + p.g + '"></div>';
+      artStyle = "background-image:url(" + base + "hq720.jpg),url(" + base + "mqdefault.jpg)," + p.g;
     } else {
-      art = '<div class="art" style="background:' + p.g + '"><div class="letter">' + p.l + '</div></div>';
+      artStyle = "background:" + p.g;
+      artInner = '<div class="letter">' + p.l + '</div>';
     }
-    el.innerHTML = art +
-      '<div class="cap"><b>' + p.t + '</b><span>' + p.c + '</span></div>' +
+    el.innerHTML =
+      '<div class="p-head"><span>Convex Reel</span><b>' + pad(i + 1) + '</b></div>' +
+      '<div class="p-art" style="' + artStyle + '">' + artInner + '</div>' +
+      '<div class="p-meta"><b>' + p.t + '</b><span>' + p.c + '</span></div>' +
+      '<div class="p-progress"><i></i></div>' +
+      '<div class="p-controls">' + ICONS.shuffle + ICONS.prev +
+      '<span class="p-play">' + ICONS.play + '</span>' + ICONS.next + ICONS.repeat + '</div>' +
       '<div class="info"><em>' + p.c + '</em><b>' + p.t + '</b><p>' + p.d + '</p>' +
       '<span class="play">' + playLabel(p.v) + '</span></div>';
     el.addEventListener("click", function(){
