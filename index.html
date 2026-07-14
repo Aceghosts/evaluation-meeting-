@@ -811,8 +811,10 @@ footer{
         <h3>The Proof <span>· A National Award</span></h3>
         <p>Best Digital Marketing Communication for the itel S26 Ultra Series at the Pakistan
         Digital Awards: my concept on paper, executed over a grueling two-day live shoot in
-        Islamabad. The department's first national hardware.</p>
-        <div class="chips"><i>itel S26 Ultra 🏆</i><i>Pakistan Digital Awards</i></div>
+        Islamabad. The department's first national hardware. Then the itel A200+ campaign, a
+        one-man production where every asset was made by me with AI. The DVC was loved in the
+        Indian region and itel is picking it up for their own socials.</p>
+        <div class="chips"><i>itel S26 Ultra 🏆</i><i>itel A200+</i><i>Pakistan Digital Awards</i></div>
       </div>
       <div class="entry rv">
         <div class="when">Next Year · The Offer</div>
@@ -1093,6 +1095,8 @@ var PROJECTS = [
     d:"The animated film that put the department on the national stage.", v:"" },
   { t:"itel S26 Ultra",     c:"Best Digital Comms 🏆", f:"award",  g:"linear-gradient(150deg,#FFB35C,#FF5A1F)", l:"S",
     d:"National award winner: my concept, shot over two days in Islamabad.", v:"https://youtu.be/PekyYtp7OD8" },
+  { t:"itel A200+",         c:"Solo AI DVC",           f:"film",   g:"linear-gradient(150deg,#FF6E31,#3A1105)", l:"A",
+    d:"Produced solo, every asset AI-made. Loved in India, picked up for itel's socials.", v:"", show:true },
   { t:"PSO Journey",        c:"72h · Full AI",         f:"film",   g:"linear-gradient(150deg,#E8863A,#3D1204)", l:"J",
     d:"Brief to final cut in 72 hours, fully AI-produced.", v:"https://youtu.be/QQenfVkfMt4" },
   { t:"Capri Deo Men",      c:"Zero Camera",           f:"film",   g:"linear-gradient(150deg,#B8451A,#1E0B04)", l:"C",
@@ -1116,7 +1120,7 @@ var PROJECTS = [
    The section pins while scrolling rotates the ring one full revolution,
    then releases into the next section. */
 var scene = document.getElementById("scene");
-var CYL = PROJECTS.filter(function(p){ return p.v; });
+var CYL = PROJECTS.filter(function(p){ return p.v || p.show; });
 var gcards = [];
 CYL.forEach(function(p, i){
   var yt = p.v.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/);
@@ -1128,7 +1132,7 @@ CYL.forEach(function(p, i){
   card.innerHTML =
     art +
     '<span class="g-tt"><b>' + p.t + '</b><i>' + p.d + '</i></span>';
-  card.addEventListener("click", function(){ if (!didSpin) openLightbox(p); });
+  card.addEventListener("click", function(){ if (!didSpin && p.v) openLightbox(p); });
   if (finePointer && !reduce && dot) {
     card.addEventListener("mouseenter", function(){ dot.classList.add("is-hover"); });
     card.addEventListener("mouseleave", function(){ dot.classList.remove("is-hover"); });
