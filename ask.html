@@ -67,15 +67,21 @@ body::after{
 }
 @keyframes shine{to{background-position:100% 0}}
 .btn{
-  display:inline-flex;align-items:center;gap:10px;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
   font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;
   letter-spacing:.1em;text-transform:uppercase;
   padding:11px 24px;border-radius:100px;
   border:1px solid var(--line);color:var(--cream);
-  transition:border-color .25s var(--ease-soft);
+  background:transparent;cursor:pointer;
+  transition:border-color .25s var(--ease-soft),box-shadow .25s var(--ease-soft);
   white-space:nowrap;
 }
 .btn:hover{border-color:rgba(255,179,92,.45)}
+.btn-primary{
+  background:linear-gradient(120deg,var(--ember),var(--amber));
+  color:#1A0C05;border-color:transparent;
+}
+.btn-primary:hover{box-shadow:0 8px 40px rgba(255,90,31,.35)}
 .topbar{
   display:flex;align-items:center;justify-content:space-between;gap:20px;
   padding:22px 0;
@@ -89,7 +95,7 @@ body::after{
   background:linear-gradient(120deg,var(--ember),var(--amber));
   box-shadow:0 0 14px rgba(255,90,31,.8);
 }
-main{position:relative;padding:60px 0 60px;overflow:hidden}
+main{position:relative;padding:60px 0 60px;overflow:hidden;min-height:70vh}
 .glow{
   position:absolute;border-radius:50%;filter:blur(90px);
   pointer-events:none;z-index:0;
@@ -98,6 +104,55 @@ main .wrap{position:relative;z-index:1}
 h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
 .lead{color:var(--muted);max-width:60ch;margin-bottom:56px}
 
+/* ---------- password gate ---------- */
+.gate{
+  position:relative;z-index:1;
+  min-height:56vh;
+  display:flex;align-items:center;justify-content:center;
+}
+.gate-card{
+  width:min(430px,92vw);
+  background:var(--surface);border:1px solid var(--line);border-radius:22px;
+  padding:42px 38px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.gate-card::before{
+  content:"";position:absolute;width:260px;height:260px;border-radius:50%;
+  left:50%;top:-160px;margin-left:-130px;
+  background:radial-gradient(circle,rgba(255,90,31,.25),transparent 65%);
+  filter:blur(40px);pointer-events:none;
+}
+.gate-card .eyebrow{justify-content:center}
+.gate-card .eyebrow::after{content:"";width:26px;height:1px;background:linear-gradient(90deg,var(--amber),var(--ember))}
+.gate-card h1{
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+  font-size:clamp(24px,3vw,32px);letter-spacing:-.02em;
+  margin:16px 0 8px;
+}
+.gate-card p{color:var(--muted);font-size:14px;margin-bottom:26px}
+.gate-field{display:flex;flex-direction:column;gap:12px;position:relative}
+.gate-field input{
+  width:100%;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:100px;
+  padding:13px 22px;
+  font-family:'Space Grotesk',sans-serif;font-size:14px;letter-spacing:.14em;text-align:center;
+  color:var(--cream);outline:none;
+  transition:border-color .25s var(--ease-soft);
+}
+.gate-field input:focus{border-color:rgba(255,179,92,.5)}
+.gate-error{
+  color:var(--ember);font-family:'Space Grotesk',sans-serif;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  min-height:18px;margin-top:10px;
+}
+.gate-card.shake{animation:shake .4s var(--ease-out)}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-9px)}40%{transform:translateX(9px)}
+  60%{transform:translateX(-6px)}80%{transform:translateX(6px)}
+}
+
+/* ---------- unlocked content ---------- */
 .ladder{
   display:grid;grid-template-columns:repeat(4,1fr);
   gap:clamp(10px,2vw,22px);align-items:end;
@@ -135,7 +190,6 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
 .rung.is-ask small{color:var(--ember)}
 .ladder-note{color:var(--muted);max-width:62ch;margin:0 0 54px;font-size:15px}
 .ladder-note strong{color:var(--cream);font-weight:600}
-
 .role-card{
   position:relative;overflow:hidden;
   background:var(--surface);border:1px solid var(--line);border-radius:22px;
@@ -162,7 +216,6 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
   color:var(--amber);
 }
 .role-cols p{color:var(--muted);font-size:14px;line-height:1.65;margin:8px 0 0}
-
 .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:18px}
 .card{
   position:relative;
@@ -217,69 +270,21 @@ footer{
 <main>
   <div class="glow" style="width:640px;height:640px;left:50%;top:-80px;margin-left:-320px;background:radial-gradient(circle at 50% 35%,rgba(255,90,31,.14),transparent 70%)" aria-hidden="true"></div>
   <div class="glow" style="width:480px;height:480px;right:-160px;bottom:0;background:radial-gradient(circle,rgba(122,36,8,.35),transparent 70%)" aria-hidden="true"></div>
-  <div class="wrap">
-    <div class="eyebrow rv">The Ask · Performance Review 2026</div>
-    <h1 class="display rv">Alignment, <em class="grad-text">in numbers</em>.</h1>
-    <p class="lead rv">Everything on the main page is the proof. This page is what the proof
-    is worth.</p>
 
-    <div class="ladder rv">
-      <div class="rung">
-        <div class="bar-track"><i class="bar" style="height:50%"></i></div>
-        <b>PKR <span class="acount" data-to="150">0</span>K</b><small>Previous</small>
+  <div class="gate" id="gate">
+    <div class="gate-card" id="gateCard">
+      <div class="eyebrow">The Ask · Protected</div>
+      <h1>For the room only.</h1>
+      <p>This page holds the numbers. Enter the password to open it.</p>
+      <div class="gate-field">
+        <input type="password" id="gatePw" placeholder="Password" autocomplete="off" autofocus>
+        <button class="btn btn-primary" id="gateBtn">Unlock</button>
       </div>
-      <div class="rung">
-        <div class="bar-track"><i class="bar" style="height:73%"></i></div>
-        <b>PKR <span class="acount" data-to="220">0</span>K</b><small>Current</small>
-      </div>
-      <div class="rung">
-        <div class="bar-track"><i class="bar" style="height:93%"></i></div>
-        <b>PKR <span class="acount" data-to="280">0</span>K</b><small>Market Offer</small>
-      </div>
-      <div class="rung is-ask">
-        <div class="bar-track"><i class="bar" style="height:100%"></i></div>
-        <b>PKR <span class="acount" data-to="300">0</span>K</b><small>The Ask</small>
-      </div>
+      <div class="gate-error" id="gateError"></div>
     </div>
-    <p class="ladder-note rv">The market has already priced this role: an external offer of 280
-    was on the table, and the company chose to counter it. The ask closes the gap at 300.
-    <strong>Manager output, delivered for a year on a team lead salary.</strong></p>
-
-    <div class="role-card rv">
-      <div class="role-head">
-        <small>The Title</small>
-        <h2>Creative AI Director</h2>
-      </div>
-      <div class="role-cols">
-        <div><small>What stays</small><p>Team leadership, delivery quality, and client output. The playing coach does not leave the floor.</p></div>
-        <div><small>What gets formalized</small><p>AI strategy ownership, pipeline authority, and cross-department SLAs that already exist in practice.</p></div>
-        <div><small>What becomes possible</small><p>AI production pitched as a client service, stronger talent, and a competitive position no other agency in Pakistan holds.</p></div>
-      </div>
-    </div>
-
-    <div class="cards">
-      <div class="card rv">
-        <p>Senior hours are being spent on execution a junior can own. One junior frees that
-        capacity for AI strategy, creative direction, and higher-value output, multiplying
-        department impact without senior headcount cost.</p>
-        <h3><small>Ask 01</small>A junior animator</h3>
-      </div>
-      <div class="card rv">
-        <p>Animation absorbs upstream delays and then owns the crunch. Clear handoff SLAs
-        between design and animation protect both teams and make delivery predictable for
-        everyone, including the client.</p>
-        <h3><small>Ask 02</small>Clear SLAs with design</h3>
-      </div>
-      <div class="card wide rv">
-        <p>Not an entitlement. A recognition that a 360 degree transformation happened: a
-        national award, an AI pipeline the industry is still catching up to, and PKR 5 million
-        in revenue attached to it. The Alto marks that the company saw it.</p>
-        <h3><small>Ask 03 · Performance Reward</small>The Alto</h3>
-      </div>
-    </div>
-
-    <p class="quote rv">"I'm not asking for validation.<br>I'm asking for <em class="grad-text">alignment</em>."</p>
   </div>
+
+  <div id="askContent"></div>
 </main>
 
 <footer>
@@ -294,22 +299,71 @@ footer{
 (function(){
 "use strict";
 var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-var counts = document.querySelectorAll(".acount");
-if (reduce) {
-  counts.forEach(function(el){ el.textContent = el.dataset.to; });
-  return;
+
+/* AES-GCM payload: without the password, the content does not exist in readable form */
+var PAYLOAD = {"s": "qDLZLmgK+ZAnVT2hpYEDeg==", "i": "TsC2lexP1rME5Zwo", "c": "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"};
+
+function b64(s){
+  return Uint8Array.from(atob(s), function(c){ return c.charCodeAt(0); });
 }
-gsap.set(".rv", { opacity: 0, y: 24 });
-gsap.to(".rv", { opacity: 1, y: 0, duration: .9, ease: "power3.out", stagger: .09, delay: .15 });
-gsap.to(".ladder .bar", { scaleY: 1, duration: 1.1, ease: "power3.out", stagger: .13, delay: .55 });
-counts.forEach(function(el){
-  var to = parseInt(el.dataset.to, 10);
-  var obj = { v: 0 };
-  gsap.to(obj, {
-    v: to, duration: 1.5, ease: "power3.out", delay: .7,
-    onUpdate: function(){ el.textContent = Math.round(obj.v); }
+function decrypt(pw){
+  var enc = new TextEncoder();
+  return crypto.subtle.importKey("raw", enc.encode(pw), "PBKDF2", false, ["deriveKey"])
+    .then(function(km){
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: b64(PAYLOAD.s), iterations: 250000, hash: "SHA-256" },
+        km, { name: "AES-GCM", length: 256 }, false, ["decrypt"]
+      );
+    })
+    .then(function(key){
+      return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(PAYLOAD.i) }, key, b64(PAYLOAD.c));
+    })
+    .then(function(pt){ return new TextDecoder().decode(pt); });
+}
+
+function runIntro(){
+  var counts = document.querySelectorAll(".acount");
+  if (reduce) {
+    counts.forEach(function(el){ el.textContent = el.dataset.to; });
+    return;
+  }
+  gsap.set("#askContent .rv", { opacity: 0, y: 24 });
+  gsap.to("#askContent .rv", { opacity: 1, y: 0, duration: .9, ease: "power3.out", stagger: .09, delay: .1 });
+  gsap.to(".ladder .bar", { scaleY: 1, duration: 1.1, ease: "power3.out", stagger: .13, delay: .5 });
+  counts.forEach(function(el){
+    var to = parseInt(el.dataset.to, 10);
+    var obj = { v: 0 };
+    gsap.to(obj, {
+      v: to, duration: 1.5, ease: "power3.out", delay: .65,
+      onUpdate: function(){ el.textContent = Math.round(obj.v); }
+    });
   });
-});
+}
+
+var gate = document.getElementById("gate");
+var card = document.getElementById("gateCard");
+var input = document.getElementById("gatePw");
+var errEl = document.getElementById("gateError");
+
+function tryUnlock(){
+  var pw = input.value.trim();
+  if (!pw) return;
+  errEl.textContent = "";
+  decrypt(pw).then(function(html){
+    document.getElementById("askContent").innerHTML = html;
+    gate.style.display = "none";
+    runIntro();
+  }).catch(function(){
+    errEl.textContent = "Wrong password";
+    input.value = "";
+    card.classList.remove("shake");
+    void card.offsetWidth;
+    card.classList.add("shake");
+    input.focus();
+  });
+}
+document.getElementById("gateBtn").addEventListener("click", tryUnlock);
+input.addEventListener("keydown", function(e){ if (e.key === "Enter") tryUnlock(); });
 })();
 </script>
 </body>
