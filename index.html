@@ -464,7 +464,8 @@ section{position:relative}
 /* small screens: same orbiting cylinder, sized for the phone */
 @media (max-width:760px){
   .scene{height:clamp(420px,calc(100vh - 220px),640px)}
-  .gcard{width:210px;padding:14px}
+  /* ride lower on phones so the cards clear the face in the photo */
+  .gcard{width:210px;padding:14px;top:68%}
   .g-art{margin-bottom:11px}
   .g-tt b{font-size:14px}
   .g-tt i{font-size:11px}
