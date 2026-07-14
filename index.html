@@ -390,19 +390,21 @@ section{position:relative}
 .scene{
   position:relative;
   width:100vw;margin-left:calc(50% - 50vw);
-  height:clamp(460px,78vh,820px);
+  height:clamp(500px,calc(100vh - 210px),900px);
   perspective:1400px;
   cursor:grab;
   touch-action:pan-y;
-  background:url("images/scene.jpg") center 22%/cover no-repeat;
+  /* fit the photo by height so the full frame always shows, centered */
+  background:url("images/scene.jpg") center center/auto 100% no-repeat;
 }
 .scene:active{cursor:grabbing}
-/* vignette: blend the photo into the page background top and bottom */
+/* vignette: fade the photo's sides into the page black, blend top and bottom */
 .scene::before{
   content:"";position:absolute;inset:0;z-index:1;
   background:
-    linear-gradient(to bottom,var(--bg),rgba(11,9,8,0) 22%,rgba(11,9,8,0) 78%,var(--bg)),
-    linear-gradient(rgba(11,9,8,.22),rgba(11,9,8,.22));
+    linear-gradient(to right,var(--bg),rgba(11,9,8,0) 30%,rgba(11,9,8,0) 70%,var(--bg)),
+    linear-gradient(to bottom,var(--bg),rgba(11,9,8,0) 18%,rgba(11,9,8,0) 84%,var(--bg)),
+    linear-gradient(rgba(11,9,8,.18),rgba(11,9,8,.18));
   pointer-events:none;
 }
 /* cylinder members: transform written per scroll frame, so no transform transition */
