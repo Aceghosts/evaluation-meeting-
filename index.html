@@ -1200,10 +1200,10 @@ var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
   }
 
 
-  /* the idle revolve pauses the moment the mouse is over the scene */
+  /* the idle revolve pauses only while the mouse is over a card */
   if (finePointer) {
-    scene.addEventListener("mouseenter", function(){ hoverPause = true; });
-    scene.addEventListener("mouseleave", function(){ hoverPause = false; });
+    scene.addEventListener("mouseover", function(e){ if (e.target.closest(".gcard")) hoverPause = true; });
+    scene.addEventListener("mouseout", function(e){ if (e.target.closest(".gcard")) hoverPause = false; });
   }
 
   /* hold and move to spin the ring by hand */
