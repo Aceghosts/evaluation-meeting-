@@ -780,7 +780,7 @@ footer{
       <div class="eyebrow rv">The Work</div>
       <h2 class="display rv">A year of <em class="grad-text">receipts</em>.</h2>
     </div>
-    <p class="work-note rv">Scroll to spin · tap a player to watch</p>
+    <p class="work-note rv">Hold and drag to spin · tap a player to watch</p>
   </div>
   <div class="scene" id="scene">
     <!-- glass player cards injected by JS; the photo is the scene background -->
@@ -1181,8 +1181,7 @@ function cylLayout(rot){
   });
 }
 
-/* rotation = scroll scrub + idle auto-revolve + hold-and-drag, rendered by one loop */
-var spin = { rot: 0 };
+/* rotation = endless idle orbit + hold-and-drag, rendered by one loop */
 var rotAuto = 0, rotDrag = 0, lastRot = null;
 var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
 {
@@ -1192,15 +1191,6 @@ var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
   }, { threshold: .15 }).observe(scene);
 
   if (!reduce) {
-    /* pin the section; one full revolution across the pinned scroll span */
-    gsap.to(spin, {
-      rot: 360, ease: "none",
-      scrollTrigger: {
-        trigger: ".work", start: "top top",
-        end: "+=" + (CYL.length * (innerWidth < 761 ? 300 : 420)),
-        pin: true, scrub: true, anticipatePin: 1
-      }
-    });
     /* entrance: fade the whole stage in (per-card tweens would fight cylLayout) */
     gsap.set(scene, { autoAlpha: 0 });
     gsap.to(scene, {
@@ -1246,7 +1236,7 @@ var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
     if (!reduce && sceneVisible && !hoverPause && !dragSpin && !lightbox.classList.contains("is-open")) {
       rotAuto += (dt / 1000) * 6;   /* one lap every ~60s */
     }
-    var rot = spin.rot + rotAuto + rotDrag;
+    var rot = rotAuto + rotDrag;
     if (lastRot === null || Math.abs(rot - lastRot) > .002) {
       cylLayout(rot);
       lastRot = rot;
