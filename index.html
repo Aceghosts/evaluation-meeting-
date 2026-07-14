@@ -555,6 +555,23 @@ section{position:relative}
   font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--muted);border:1px solid var(--line);border-radius:100px;
   padding:6px 13px;
+  position:relative;overflow:hidden;cursor:pointer;
+  transition:border-color .25s var(--ease-soft),color .25s var(--ease-soft);
+}
+.chips i:hover{border-color:rgba(255,179,92,.4);color:var(--cream)}
+/* click shine sweep */
+.chips i::after{
+  content:"";position:absolute;top:0;bottom:0;left:-80%;width:55%;
+  background:linear-gradient(105deg,transparent,rgba(255,236,210,.45),transparent);
+  transform:skewX(-20deg);
+  pointer-events:none;
+}
+.chips i.shine::after{animation:chipShine .7s var(--ease-out)}
+@keyframes chipShine{to{left:130%}}
+/* confetti particles for the award chips */
+.confetti-bit{
+  position:fixed;z-index:400;
+  pointer-events:none;will-change:transform,opacity;
 }
 
 /* ---------- next year bento ---------- */
@@ -642,7 +659,7 @@ footer{
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
-  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text{animation:none !important}
+  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text,.chips i::after{animation:none !important}
   .rv{opacity:1;transform:none}
   .line>span{transform:none !important}
   *{transition-duration:.01ms !important}
@@ -1272,6 +1289,42 @@ function closeLightbox(){
 lightbox.addEventListener("click", function(e){ if (e.target === lightbox) closeLightbox(); });
 lightbox.querySelector(".lb-close").addEventListener("click", closeLightbox);
 addEventListener("keydown", function(e){ if (e.key === "Escape") closeLightbox(); });
+
+/* --- chip click: shine sweep, plus confetti on the award chips --- */
+function chipConfetti(x, y){
+  var colors = ["#FF5A1F", "#FFB35C", "#F4EDE4", "#7A2408"];
+  for (var i = 0; i < 26; i++){
+    var p = document.createElement("span");
+    p.className = "confetti-bit";
+    var size = 5 + Math.random() * 5;
+    p.style.width = size + "px";
+    p.style.height = (Math.random() < .4 ? size : size * .45) + "px";
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.borderRadius = Math.random() < .3 ? "50%" : "2px";
+    p.style.left = x + "px";
+    p.style.top = y + "px";
+    document.body.appendChild(p);
+    var ang = -Math.PI / 2 + (Math.random() - .5) * Math.PI * 1.6;  /* mostly upward */
+    var dist = 60 + Math.random() * 120;
+    var dur = .9 + Math.random() * .6;
+    gsap.to(p, { x: Math.cos(ang) * dist, rotation: (Math.random() - .5) * 540, duration: dur, ease: "power2.out" });
+    gsap.to(p, {
+      y: Math.sin(ang) * dist + 130, opacity: 0, duration: dur, ease: "power2.in",
+      onComplete: function(el){ el.remove(); }, onCompleteParams: [p]
+    });
+  }
+}
+document.addEventListener("click", function(e){
+  var chip = e.target.closest(".chips i");
+  if (!chip || reduce) return;
+  chip.classList.remove("shine");
+  void chip.offsetWidth;   /* restart the sweep animation */
+  chip.classList.add("shine");
+  if (chip.textContent.indexOf("🏆") > -1) {
+    var r = chip.getBoundingClientRect();
+    chipConfetti(r.left + r.width / 2, r.top + r.height / 2);
+  }
+});
 
 /* ---------- timeline progress scrub ---------- */
 if (!reduce) {
