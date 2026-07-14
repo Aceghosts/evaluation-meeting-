@@ -238,17 +238,9 @@ section{position:relative}
   background:linear-gradient(to top,var(--bg),transparent);
   pointer-events:none;
 }
-.portrait .monogram{
-  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
-  font-size:clamp(120px,16vw,220px);line-height:.8;
-  color:rgba(11,9,8,.28);letter-spacing:-.05em;
-  transform:translateY(8%);
-  user-select:none;
-}
 .portrait img{
-  position:absolute;inset:auto 0 0 0;margin:0 auto;
-  width:100%;object-fit:cover;object-position:top;
-  filter:grayscale(1) contrast(1.05);
+  position:absolute;inset:0;
+  width:100%;height:100%;object-fit:cover;object-position:center top;
 }
 .badge{
   position:absolute;z-index:4;
@@ -336,6 +328,10 @@ section{position:relative}
   background:linear-gradient(120deg,var(--ember),var(--amber));
   margin:0 34px;flex:none;
 }
+.marquee img{
+  height:34px;width:auto;display:block;
+}
+.marquee img[alt="PSO"]{height:44px}
 
 /* ---------- about ---------- */
 .about{padding:140px 0}
@@ -373,137 +369,92 @@ section{position:relative}
   transform:scaleX(0);transform-origin:left center;will-change:transform;
 }
 
-/* ---------- work / 3D carousel ---------- */
-.work{padding:110px 0 130px;overflow:hidden}
+/* ---------- work / glass player collage ---------- */
+.work{padding:110px 0 40px;overflow:hidden}
 .work-head{
   display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap;
-  margin-bottom:26px;
+  margin-bottom:10px;
 }
 .work h2{font-size:clamp(34px,4.6vw,58px);margin-top:22px}
-.filters{display:flex;gap:10px;flex-wrap:wrap}
-.pill{
-  font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--muted);background:transparent;
-  border:1px solid var(--line);border-radius:100px;padding:10px 20px;
-  transition:all .25s var(--ease-soft);
+.work-note{
+  font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 8px;
 }
-.pill:hover{color:var(--cream);border-color:rgba(255,179,92,.4)}
-.pill.is-active{
-  color:#1A0C05;border-color:transparent;
-  background:linear-gradient(120deg,var(--ember),var(--amber));
-}
-#stage{
-  position:relative;height:clamp(420px,56vh,560px);margin-top:26px;
+/* full-bleed pinned stage: the players orbit the figure in the photo as you scroll */
+.scene{
+  position:relative;
+  width:100vw;margin-left:calc(50% - 50vw);
+  height:clamp(460px,78vh,820px);
   perspective:1400px;
-  touch-action:pan-y;
   cursor:grab;
-  transition:opacity .35s var(--ease-soft);
-  will-change:transform;
+  touch-action:pan-y;
+  background:url("images/scene.jpg") center 22%/cover no-repeat;
 }
-#stage.is-fading{opacity:0}
-#stage:active{cursor:grabbing}
-.card3d{
-  position:absolute;left:50%;top:50%;
-  width:clamp(230px,30vw,320px);aspect-ratio:3/4;
-  margin-left:calc(clamp(230px,30vw,320px) / -2);
-  margin-top:calc(clamp(230px,30vw,320px) * 4 / 3 / -2);
-  border-radius:22px;overflow:hidden;
-  display:flex;flex-direction:column;gap:11px;
-  padding:14px;
-  border:1px solid rgba(244,237,228,.2);
-  /* faux glass: translucent layers over the pre-blurred orbs behind the stage —
-     real backdrop-filter on 10 3D-transformed cards kills the compositor */
+.scene:active{cursor:grabbing}
+/* vignette: blend the photo into the page background top and bottom */
+.scene::before{
+  content:"";position:absolute;inset:0;z-index:1;
   background:
-    linear-gradient(135deg,rgba(244,237,228,.12),rgba(244,237,228,.03) 60%),
-    linear-gradient(rgba(22,17,16,.5),rgba(22,17,16,.5));
-  transition:transform .55s var(--ease-out),opacity .55s var(--ease-out),filter .55s var(--ease-out),box-shadow .55s var(--ease-out);
+    linear-gradient(to bottom,var(--bg),rgba(11,9,8,0) 22%,rgba(11,9,8,0) 78%,var(--bg)),
+    linear-gradient(rgba(11,9,8,.22),rgba(11,9,8,.22));
+  pointer-events:none;
+}
+/* cylinder members: transform written per scroll frame, so no transform transition */
+.gcard{
+  position:absolute;left:50%;top:46%;
+  width:clamp(240px,24vw,330px);
+  cursor:pointer;
+  border-radius:24px;
+  padding:20px;
+  border:1px solid rgba(255,255,255,.28);
+  background:linear-gradient(135deg,rgba(255,255,255,.17),rgba(255,255,255,.05) 60%);
+  backdrop-filter:blur(18px) saturate(1.35);-webkit-backdrop-filter:blur(18px) saturate(1.35);
+  box-shadow:0 24px 70px rgba(0,0,0,.45);
+  transition:border-color .3s var(--ease-soft),box-shadow .3s var(--ease-soft);
   will-change:transform,opacity;
-  user-select:none;-webkit-user-drag:none;
+  user-select:none;
 }
-/* glass sheen */
-.card3d::before{
+.gcard:hover{
+  border-color:rgba(255,255,255,.5);
+  box-shadow:0 24px 70px rgba(0,0,0,.5),0 0 50px rgba(255,90,31,.18);
+}
+.gcard::before{
   content:"";position:absolute;inset:0;border-radius:inherit;
-  background:linear-gradient(125deg,rgba(255,255,255,.16),rgba(255,255,255,0) 42%);
-  pointer-events:none;z-index:1;
+  background:linear-gradient(125deg,rgba(255,255,255,.18),rgba(255,255,255,0) 45%);
+  pointer-events:none;
 }
-#stage.dragging .card3d{transition:none}
-.p-head{
-  display:flex;justify-content:space-between;align-items:center;flex:none;
-  font-family:'Space Grotesk',sans-serif;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--muted);
-}
-.p-head b{color:var(--cream);font-weight:500}
-.p-art{
-  position:relative;flex:1;min-height:0;
-  border-radius:14px;overflow:hidden;
-  border:1px solid rgba(244,237,228,.12);
+/* minimal card: full-width art + title + one-liner */
+.g-art{
+  display:block;width:100%;aspect-ratio:16/9;
+  border-radius:14px;
   background-size:cover;background-position:center;
-  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.22);
+  margin-bottom:14px;
 }
-.p-art .letter{
-  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;
-  font-size:clamp(70px,9vw,110px);line-height:1;color:rgba(11,9,8,.28);
-  letter-spacing:-.05em;user-select:none;
-}
-.p-meta{display:flex;flex-direction:column;gap:3px;flex:none;min-width:0}
-.p-meta b{
-  font-family:'Bricolage Grotesque',sans-serif;font-size:15.5px;font-weight:700;letter-spacing:-.01em;
+.g-tt{display:flex;flex-direction:column;gap:6px;min-width:0}
+.g-tt b{
+  font-family:'Bricolage Grotesque',sans-serif;font-size:17px;font-weight:700;letter-spacing:-.01em;
   line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.p-meta span{
-  font-family:'Space Grotesk',sans-serif;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--amber);
+.g-tt i{
+  font-style:normal;
+  font-size:12.5px;line-height:1.55;
+  color:rgba(244,237,228,.68);
 }
-.p-progress{
-  flex:none;height:3px;border-radius:3px;overflow:hidden;
-  background:rgba(244,237,228,.14);
-}
-.p-progress i{
-  display:block;height:100%;width:32%;border-radius:3px;
-  background:linear-gradient(90deg,var(--ember),var(--amber));
-}
-.card3d.is-active .p-progress i{animation:prog 22s linear infinite}
-@keyframes prog{from{width:5%}to{width:95%}}
-.p-controls{
-  display:flex;align-items:center;justify-content:space-between;
-  flex:none;padding:0 8px 2px;
-}
-.p-controls svg{
-  width:15px;height:15px;
-  fill:none;stroke:var(--muted);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;
-}
-.p-play{
-  width:36px;height:36px;border-radius:50%;flex:none;
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(120deg,var(--ember),var(--amber));
-  box-shadow:0 6px 18px rgba(255,90,31,.35);
-}
-.p-play svg{width:13px;height:13px;stroke:#1A0C05;fill:#1A0C05}
-.card3d.is-active{
-  box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 60px rgba(255,90,31,.18);
-}
-.card3d .info{
-  position:absolute;inset:0;z-index:2;
-  display:flex;flex-direction:column;justify-content:flex-end;gap:9px;
-  padding:24px;
-  background:linear-gradient(to top,rgba(11,9,8,.94) 28%,rgba(11,9,8,.55) 68%,rgba(11,9,8,.2));
-  opacity:0;pointer-events:none;
-  transition:opacity .35s var(--ease-soft);
-}
-.card3d.is-expanded .info{opacity:1}
-.card3d .info em{
-  font-style:normal;font-family:'Space Grotesk',sans-serif;
-  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);
-}
-.card3d .info b{
-  font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.01em;
-  line-height:1.2;
-}
-.card3d .info p{font-size:12.5px;line-height:1.55;color:var(--muted);margin:0}
-.card3d .info .play{
-  display:flex;align-items:center;gap:8px;margin-top:5px;
-  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--ember);
+/* small screens: the cylinder becomes a clean stack, no pinning */
+@media (max-width:760px){
+  .scene{
+    width:auto;margin-left:0;height:auto;
+    display:grid;grid-template-columns:1fr;gap:14px;
+    padding:14px 4vw 6px;
+    perspective:none;
+    background:none;
+  }
+  .scene::before{display:none}
+  .gcard{
+    position:static;width:100% !important;
+    transform:none !important;opacity:1 !important;filter:none !important;
+  }
 }
 
 /* ---------- video lightbox ---------- */
@@ -545,30 +496,6 @@ section{position:relative}
   font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);
 }
-.work-foot{
-  display:flex;align-items:center;justify-content:center;gap:22px;
-  margin-top:34px;
-}
-.cnav{
-  width:52px;height:52px;border-radius:50%;
-  border:1px solid var(--line);background:transparent;color:var(--cream);
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;
-  transition:border-color .25s var(--ease-soft),background .25s var(--ease-soft),transform .25s var(--ease-soft);
-  will-change:transform;
-}
-.cnav:hover{border-color:rgba(255,179,92,.5);background:rgba(255,90,31,.08)}
-.counter{
-  font-family:'Space Grotesk',sans-serif;font-size:13px;letter-spacing:.22em;color:var(--muted);
-  min-width:84px;text-align:center;
-}
-.counter b{color:var(--cream);font-weight:500}
-.hint{
-  text-align:center;margin-top:18px;
-  font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--muted);
-}
-
 /* ---------- timeline ---------- */
 .journey{padding:120px 0}
 .journey h2{font-size:clamp(34px,4.6vw,58px);margin:22px 0 60px}
@@ -693,7 +620,7 @@ footer{
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
-  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text,.p-progress i{animation:none !important}
+  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text{animation:none !important}
   .rv{opacity:1;transform:none}
   .line>span{transform:none !important}
   *{transition-duration:.01ms !important}
@@ -724,9 +651,7 @@ footer{
   <div class="hero-ring" data-mx="12" data-my="9"></div>
 
   <div class="portrait" id="portrait" data-mx="-8" data-my="-5">
-    <div class="monogram">AM</div>
-    <!-- Swap in a B&W cut-out portrait (~800px, transparent PNG) -->
-    <img id="portraitImg" alt="" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFhAJ/wlseKgAAAABJRU5ErkJggg==" style="opacity:0">
+    <img id="portraitImg" alt="Abbas Mustafa" src="images/hero.jpg">
   </div>
   <div class="badge" id="heroBadge"><span class="pulse"></span> Two national awards · 2025</div>
 
@@ -761,8 +686,15 @@ footer{
 <!-- ================= MARQUEE ================= -->
 <section class="marquee-sec" aria-hidden="true">
   <div class="marquee" id="marquee">
-    <span>PSO</span><span>itel</span><span>Chery</span><span>Capri</span><span>Krone</span>
-    <span>Pakistan Digital Awards</span><span>Kling AI</span><span>Convex Interactive</span>
+    <span><img src="LOGOS/trim/pso.png" alt="PSO"></span>
+    <span><img src="LOGOS/trim/itel.png" alt="itel"></span>
+    <span><img src="LOGOS/trim/chery.png" alt="Chery"></span>
+    <span><img src="LOGOS/trim/capri.png" alt="Capri"></span>
+    <span><img src="LOGOS/trim/krone.png" alt="Krone"></span>
+    <span><img src="LOGOS/trim/pda.png" alt="Pakistan Digital Awards"></span>
+    <span><img src="LOGOS/trim/kling.png" alt="Kling AI"></span>
+    <span><img src="LOGOS/trim/higgsfield.png" alt="Higgsfield"></span>
+    <span>Convex Interactive</span>
   </div>
 </section>
 
@@ -825,23 +757,11 @@ footer{
       <div class="eyebrow rv">The Work</div>
       <h2 class="display rv">A year of <em class="grad-text">receipts</em>.</h2>
     </div>
-    <div class="filters rv" id="filters">
-      <button class="pill is-active" data-f="all">All</button>
-      <button class="pill" data-f="award">Award Winners</button>
-      <button class="pill" data-f="film">AI Films</button>
-      <button class="pill" data-f="system">Systems</button>
-    </div>
+    <p class="work-note rv">Scroll to spin · tap a player to watch</p>
   </div>
-  <!-- glow behind the glass cards so the blur has something to refract -->
-  <div class="orb" style="width:460px;height:460px;left:10%;top:26%;background:radial-gradient(circle at 40% 40%,rgba(255,90,31,.32),transparent 70%)" aria-hidden="true"></div>
-  <div class="orb" style="width:380px;height:380px;right:8%;top:10%;background:radial-gradient(circle at 60% 40%,rgba(255,179,92,.22),transparent 70%)" aria-hidden="true"></div>
-  <div id="stage"></div>
-  <div class="wrap work-foot">
-    <button class="cnav magnetic" id="prevBtn" aria-label="Previous project">←</button>
-    <div class="counter"><b id="curIdx">01</b> / <span id="totIdx">09</span></div>
-    <button class="cnav magnetic" id="nextBtn" aria-label="Next project">→</button>
+  <div class="scene" id="scene">
+    <!-- glass player cards injected by JS; the photo is the scene background -->
   </div>
-  <div class="hint">Drag to browse · tap a card for the story · tap again to watch</div>
 </section>
 
 <!-- ================= JOURNEY ================= -->
@@ -863,8 +783,9 @@ footer{
         <h3>The Struggle <span>· Fought Privately</span></h3>
         <p>A moment of genuine doubt about being the right person for this role. Stayed late,
         took work home, and let the work answer it. Meanwhile: AI tools and workflows rolled out
-        to every team member before the industry caught up, with no budget and no mandate.</p>
-        <div class="chips"><i>AI Integration</i><i>Kling AI</i><i>Nano Banana</i><i>New Pipeline</i></div>
+        to every team member before the industry caught up, with no budget and no mandate. I also
+        championed the Higgsfield license that now powers most of the department's output.</p>
+        <div class="chips"><i>AI Integration</i><i>Higgsfield</i><i>Kling AI</i><i>Nano Banana</i><i>New Pipeline</i></div>
       </div>
       <div class="entry rv">
         <div class="when">2025 · Act III</div>
@@ -1159,231 +1080,144 @@ var PROJECTS = [
   { t:"PSO Pak Gas",        c:"Best Animation 🏆",     f:"award",  g:"linear-gradient(150deg,#FF5A1F,#7A2408)", l:"P",
     d:"Winner of Best Animation at the Pakistan Digital Awards. The film that put the department on the national stage.", v:"" },
   { t:"itel S26 Ultra",     c:"Best Digital Comms 🏆", f:"award",  g:"linear-gradient(150deg,#FFB35C,#FF5A1F)", l:"S",
-    d:"Winner of Best Digital Marketing Communication. My concept on paper, executed over a grueling two-day live shoot in Islamabad.", v:"https://youtu.be/PekyYtp7OD8" },
+    d:"National award winner: my concept, shot over two days in Islamabad.", v:"https://youtu.be/PekyYtp7OD8" },
   { t:"PSO Journey",        c:"72h · Full AI",         f:"film",   g:"linear-gradient(150deg,#E8863A,#3D1204)", l:"J",
-    d:"72 hours from brief to final cut, fully AI-produced. The client played it three times in the boardroom.", v:"https://youtu.be/QQenfVkfMt4" },
+    d:"Brief to final cut in 72 hours, fully AI-produced.", v:"https://youtu.be/QQenfVkfMt4" },
   { t:"Capri Deo Men",      c:"Zero Camera",           f:"film",   g:"linear-gradient(150deg,#B8451A,#1E0B04)", l:"C",
-    d:"Zero camera. Every visual and the jingle generated with AI from scratch.", v:"https://youtu.be/K1Lq9BuCtPQ" },
+    d:"Every visual and the jingle, AI-generated with zero camera.", v:"https://youtu.be/K1Lq9BuCtPQ" },
   { t:"Hype by Capri",      c:"Social Short",          f:"film",   g:"linear-gradient(150deg,#C2551F,#241004)", l:"H",
-    d:"A high-energy social short for Capri, built AI-first for the feed.", v:"https://youtube.com/shorts/riG3K2Flsu0" },
+    d:"A high-energy AI social short built for the feed.", v:"https://youtube.com/shorts/riG3K2Flsu0" },
   { t:"MD Deepfake Tribute",c:"Most Advanced",         f:"film",   g:"linear-gradient(150deg,#FF7A3C,#5A1B06)", l:"M",
     d:"The most technically advanced deliverable this agency has ever produced.", v:"" },
   { t:"Krone DVC Series",   c:"Cinematic Teasers",     f:"film",   g:"linear-gradient(150deg,#8A2E0C,#160805)", l:"K",
-    d:"Moody, cinematic fragrance teasers built with Kling AI and Nano Banana.", v:"https://youtube.com/shorts/SX1Cxiu7-Lg" },
+    d:"Moody, cinematic fragrance teasers made with Kling AI.", v:"https://youtube.com/shorts/SX1Cxiu7-Lg" },
   { t:"PSO MD Farewell",    c:"One Photo, One Film",   f:"film",   g:"linear-gradient(150deg,#FFA34E,#93300E)", l:"F",
-    d:"One photograph turned into a cinematic tribute that moved an entire boardroom.", v:"https://youtu.be/QMEF1p7SC0w" },
+    d:"One photograph turned into a cinematic boardroom tribute.", v:"https://youtu.be/QMEF1p7SC0w" },
   { t:"Tiggo 8 PHEV Bible", c:"Pre-Production System", f:"system", g:"linear-gradient(150deg,#D96A28,#2A0E04)", l:"T",
-    d:"A full pre-production bible built alone and unprompted: DVC script, characters, storyboards, original score.", v:"https://tiggo8-phev-final.vercel.app/" },
+    d:"A complete pre-production bible, built alone and unprompted.", v:"https://tiggo8-phev-final.vercel.app/" },
   { t:"Concave",            c:"AI Analysis Engine",    f:"system", g:"linear-gradient(150deg,#FF5A1F,#FFB35C)", l:"◎",
-    d:"Scores any campaign brief across six performance dimensions before production begins. Built at no cost to the company.", v:"https://concave-app.vercel.app/" }
+    d:"An AI engine that scores briefs before production begins.", v:"https://concave-app.vercel.app/" }
 ];
 
-var ICONS = {
-  shuffle:'<svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>',
-  prev:'<svg viewBox="0 0 24 24"><path d="M19 20 9 12l10-8zM5 19V5"/></svg>',
-  play:'<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
-  next:'<svg viewBox="0 0 24 24"><path d="m5 4 10 8-10 8zM19 5v14"/></svg>',
-  repeat:'<svg viewBox="0 0 24 24"><path d="m17 2 4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3"/></svg>'
-};
-
-function isVideoUrl(v){ return /\.(mp4|webm|mov)(\?|$)/i.test(v) || /youtube\.com|youtu\.be|vimeo\.com/i.test(v); }
-function playLabel(v){
-  if (!v) return "Video coming soon";
-  return isVideoUrl(v) ? "▶ Tap again to watch" : "↗ Tap again to open live";
-}
-
-var stage = document.getElementById("stage");
-var curIdxEl = document.getElementById("curIdx");
-var totIdxEl = document.getElementById("totIdx");
-var list = PROJECTS.slice();
-var cards = [];
-var active = 0, dragOffset = 0, expanded = false;
-
-function pad(n){ return (n<10?"0":"") + n; }
-function cardW(){
-  var vw = innerWidth;
-  return Math.max(230, Math.min(vw*.30, 320));
-}
-function spacing(){
-  return cardW() * (innerWidth < 700 ? .52 : .58);
-}
-
-function buildCards(){
-  stage.innerHTML = "";
-  cards = list.map(function(p, i){
-    var el = document.createElement("div");
-    el.className = "card3d";
-    var yt = (p.v || "").match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/);
-    var artStyle, artInner = "";
-    if (yt) {
-      /* true-16:9 thumbnails (hq720, mqdefault fallback) — no letterbox bars,
-         gradient shows while images load */
-      var base = "https://img.youtube.com/vi/" + yt[1] + "/";
-      artStyle = "background-image:url(" + base + "hq720.jpg),url(" + base + "mqdefault.jpg)," + p.g;
-    } else {
-      artStyle = "background:" + p.g;
-      artInner = '<div class="letter">' + p.l + '</div>';
-    }
-    el.innerHTML =
-      '<div class="p-head"><span>Convex Reel</span><b>' + pad(i + 1) + '</b></div>' +
-      '<div class="p-art" style="' + artStyle + '">' + artInner + '</div>' +
-      '<div class="p-meta"><b>' + p.t + '</b><span>' + p.c + '</span></div>' +
-      '<div class="p-progress"><i></i></div>' +
-      '<div class="p-controls">' + ICONS.shuffle + ICONS.prev +
-      '<span class="p-play">' + ICONS.play + '</span>' + ICONS.next + ICONS.repeat + '</div>' +
-      '<div class="info"><em>' + p.c + '</em><b>' + p.t + '</b><p>' + p.d + '</p>' +
-      '<span class="play">' + playLabel(p.v) + '</span></div>';
-    el.addEventListener("click", function(){
-      if (didDrag) return;
-      if (i !== mod(active, list.length)) { active = i; expanded = false; layout(); poke(); return; }
-      if (!expanded) { expanded = true; layout(); poke(); return; }
-      if (p.v) openLightbox(p);
-    });
-    stage.appendChild(el);
-    return el;
-  });
-  totIdxEl.textContent = pad(list.length);
-  layout();
-}
-
-function mod(n, m){ return ((n % m) + m) % m; }
-
-function layout(){
-  var n = list.length;
-  var a = mod(active, n);
-  cards.forEach(function(el, i){
-    var off = i - (a + dragOffset);
-    if (off >  n/2) off -= n;
-    if (off < -n/2) off += n;
-    var abs = Math.abs(off);
-    var x = off * spacing();
-    var z = -Math.min(abs, 4) * 150;
-    var ry = -off * 16;
-    var sc = Math.max(.78, 1 - abs*.08);
-    var op = abs >= 4 ? 0 : Math.max(0, 1 - abs*.18);
-    var isCenter = Math.round(abs) === 0 && Math.abs(dragOffset) < .5;
-    if (isCenter && expanded) {
-      z = 80;
-      /* cap the expansion so the card (including the perspective boost
-         from z=80) never grows past the stage bounds */
-      var cardH = cardW() * 4 / 3;
-      var boost = 1400 / (1400 - z);
-      var fit = (stage.clientHeight * .94) / (cardH * boost);
-      sc = Math.max(1, Math.min(1.16, fit));
-    }
-    el.style.transform = "translate3d(" + x + "px,0," + z + "px) rotateY(" + ry + "deg) scale(" + sc + ")";
-    el.style.opacity = op;
-    el.style.zIndex = isCenter && expanded ? 120 : Math.round(100 - abs*10);
-    el.style.pointerEvents = abs >= 4 ? "none" : "";
-    el.classList.toggle("is-active", isCenter);
-    el.classList.toggle("is-expanded", isCenter && expanded);
-    el.style.filter = isCenter ? "" : "brightness(" + Math.max(.4, 1 - abs*.18) + ") saturate(.85)";
-  });
-  curIdxEl.textContent = pad(a + 1);
-}
-
-/* --- drag --- */
-var dragging = false, didDrag = false, startX = 0, lastX = 0, lastT = 0, velocity = 0;
-stage.addEventListener("pointerdown", function(e){
-  dragging = true; didDrag = false;
-  startX = lastX = e.clientX; lastT = performance.now(); velocity = 0;
-  stage.classList.add("dragging");
-  poke();
-});
-stage.addEventListener("pointermove", function(e){
-  if (!dragging) return;
-  var dx = e.clientX - startX;
-  if (Math.abs(dx) > 6 && !didDrag) {
-    didDrag = true;
-    /* capture only once a real drag starts, so plain taps still deliver
-       their click to the card underneath */
-    stage.setPointerCapture(e.pointerId);
-    if (expanded) expanded = false;
+/* ================= SCROLL-DRIVEN PLAYER CYLINDER ================= */
+/* The figure stays centered; the glass players orbit it on a cylinder.
+   The section pins while scrolling rotates the ring one full revolution,
+   then releases into the next section. */
+var scene = document.getElementById("scene");
+var CYL = PROJECTS.filter(function(p){ return p.v; });
+var gcards = [];
+CYL.forEach(function(p, i){
+  var yt = p.v.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/);
+  var card = document.createElement("div");
+  card.className = "gcard";
+  var art = yt
+    ? '<span class="g-art" style="background-image:url(https://img.youtube.com/vi/' + yt[1] + '/hq720.jpg),url(https://img.youtube.com/vi/' + yt[1] + '/mqdefault.jpg),' + p.g + '"></span>'
+    : '<span class="g-art" style="background:' + p.g + '"></span>';
+  card.innerHTML =
+    art +
+    '<span class="g-tt"><b>' + p.t + '</b><i>' + p.d + '</i></span>';
+  card.addEventListener("click", function(){ if (!didSpin) openLightbox(p); });
+  if (finePointer && !reduce && dot) {
+    card.addEventListener("mouseenter", function(){ dot.classList.add("is-hover"); });
+    card.addEventListener("mouseleave", function(){ dot.classList.remove("is-hover"); });
   }
-  if (!didDrag) return;
-  var now = performance.now();
-  velocity = (e.clientX - lastX) / Math.max(1, now - lastT);
-  lastX = e.clientX; lastT = now;
-  dragOffset = -dx / spacing();
-  layout();
-});
-function endDrag(){
-  if (!dragging) return;
-  dragging = false;
-  stage.classList.remove("dragging");
-  var target = Math.round(active + dragOffset);
-  if (Math.abs(velocity) > .35) target += (velocity < 0 ? 1 : -1);
-  active = target; dragOffset = 0;
-  layout(); poke();
-  setTimeout(function(){ didDrag = false; }, 50);
-}
-stage.addEventListener("pointerup", endDrag);
-stage.addEventListener("pointercancel", endDrag);
-
-/* --- prev / next --- */
-document.getElementById("prevBtn").addEventListener("click", function(){ active--; expanded = false; layout(); poke(); });
-document.getElementById("nextBtn").addEventListener("click", function(){ active++; expanded = false; layout(); poke(); });
-
-/* --- autoplay: only while visible, pause 6s after interaction --- */
-var stageVisible = false, lastPoke = 0;
-new IntersectionObserver(function(entries){
-  stageVisible = entries[0].isIntersecting;
-}, { threshold: .25 }).observe(stage);
-function poke(){ lastPoke = performance.now(); }
-if (!reduce) {
-  setInterval(function(){
-    if (!stageVisible || dragging || expanded) return;
-    if (performance.now() - lastPoke < 6000) return;
-    active++; layout();
-  }, 3200);
-}
-
-/* --- filters --- */
-document.getElementById("filters").addEventListener("click", function(e){
-  var btn = e.target.closest(".pill");
-  if (!btn) return;
-  document.querySelectorAll("#filters .pill").forEach(function(p){ p.classList.remove("is-active"); });
-  btn.classList.add("is-active");
-  var f = btn.dataset.f;
-  stage.classList.add("is-fading");
-  setTimeout(function(){
-    list = f === "all" ? PROJECTS.slice() : PROJECTS.filter(function(p){ return p.f === f; });
-    active = 0; dragOffset = 0; expanded = false;
-    buildCards();
-    stage.classList.remove("is-fading");
-  }, 350);
+  scene.appendChild(card);
+  gcards.push(card);
 });
 
-/* --- mouse tilt on active card (fine pointers, not while dragging) --- */
-if (finePointer && !reduce) {
-  stage.addEventListener("mousemove", function(e){
-    if (dragging || expanded) return;
-    var el = cards[mod(active, list.length)];
-    if (!el) return;
-    var r = el.getBoundingClientRect();
-    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
-    var px = (e.clientX - r.left) / r.width - .5;
-    var py = (e.clientY - r.top) / r.height - .5;
-    el.style.transform = "translate3d(0,0,40px) rotateY(" + (px*10) + "deg) rotateX(" + (-py*8) + "deg) scale(1.02)";
-  });
-  stage.addEventListener("mouseleave", function(){ if (!dragging) layout(); });
-}
-
-/* --- scroll drift across the section --- */
-if (!reduce) {
-  gsap.fromTo(stage, { x: 70 }, {
-    x: -70, ease: "none",
-    scrollTrigger: { trigger: ".work", start: "top bottom", end: "bottom top", scrub: true }
+function cylLayout(rot){
+  var n = gcards.length || 1;
+  var R = Math.min(Math.max(innerWidth * .30, 300), 560);
+  gcards.forEach(function(card, i){
+    var theta = ((i * 360 / n + rot) % 360 + 360) % 360;
+    var rad = theta * Math.PI / 180;
+    var d = (Math.cos(rad) + 1) / 2;   /* 1 = front, 0 = behind the figure */
+    var x = Math.sin(rad) * R;
+    var z = (Math.cos(rad) - 1) * R * .55;
+    var ry = Math.sin(rad) * -30;
+    card.style.transform = "translate(-50%,-50%) translate3d(" + x.toFixed(1) + "px,0," + z.toFixed(1) + "px) rotateY(" + ry.toFixed(1) + "deg) scale(" + (.55 + .45 * d).toFixed(3) + ")";
+    card.style.opacity = (.25 + .75 * d).toFixed(3);
+    card.style.zIndex = Math.round(10 + d * 80);   /* portrait sits at 50 */
+    card.style.pointerEvents = d < .3 ? "none" : "";
+    card.style.filter = d > .88 ? "" : "brightness(" + (.5 + .5 * d).toFixed(2) + ") saturate(.9)";
   });
 }
 
-/* --- tap outside an expanded card to collapse it --- */
-document.addEventListener("click", function(e){
-  if (!expanded || didDrag) return;
-  if (e.target.closest("#lightbox")) return;
-  var exp = stage.querySelector(".card3d.is-expanded");
-  if (exp && !exp.contains(e.target)) { expanded = false; layout(); poke(); }
-});
+/* rotation = scroll scrub + idle auto-revolve + hold-and-drag, rendered by one loop */
+var spin = { rot: 0 };
+var rotAuto = 0, rotDrag = 0, lastRot = null;
+var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
+var wideScene = matchMedia("(min-width:761px)").matches;
+if (wideScene) {
+  cylLayout(0);
+  new IntersectionObserver(function(entries){
+    sceneVisible = entries[0].isIntersecting;
+  }, { threshold: .15 }).observe(scene);
+
+  if (!reduce) {
+    /* pin the section; one full revolution across the pinned scroll span */
+    gsap.to(spin, {
+      rot: 360, ease: "none",
+      scrollTrigger: {
+        trigger: ".work", start: "top top",
+        end: "+=" + (CYL.length * 420),
+        pin: true, scrub: true, anticipatePin: 1
+      }
+    });
+    /* entrance: fade the whole stage in (per-card tweens would fight cylLayout) */
+    gsap.set(scene, { autoAlpha: 0 });
+    gsap.to(scene, {
+      autoAlpha: 1, duration: 1.1, ease: "power3.out",
+      scrollTrigger: { trigger: ".work", start: "top 60%", once: true }
+    });
+  }
+
+
+  /* the idle revolve pauses the moment the mouse is over the scene */
+  if (finePointer) {
+    scene.addEventListener("mouseenter", function(){ hoverPause = true; });
+    scene.addEventListener("mouseleave", function(){ hoverPause = false; });
+  }
+
+  /* hold and move to spin the ring by hand */
+  var spinStartX = 0, spinLastX = 0;
+  scene.addEventListener("pointerdown", function(e){
+    dragSpin = true; didSpin = false;
+    spinStartX = spinLastX = e.clientX;
+  });
+  scene.addEventListener("pointermove", function(e){
+    if (!dragSpin) return;
+    if (!didSpin && Math.abs(e.clientX - spinStartX) > 6) {
+      didSpin = true;
+      /* capture only once a real drag starts, so taps still reach the cards */
+      scene.setPointerCapture(e.pointerId);
+    }
+    if (!didSpin) return;
+    rotDrag += (e.clientX - spinLastX) * .35;
+    spinLastX = e.clientX;
+  });
+  function endSpin(){
+    if (!dragSpin) return;
+    dragSpin = false;
+    setTimeout(function(){ didSpin = false; }, 50);
+  }
+  scene.addEventListener("pointerup", endSpin);
+  scene.addEventListener("pointercancel", endSpin);
+
+  /* single render loop: advance the idle revolve, compose all three rotations */
+  gsap.ticker.add(function(time, dt){
+    if (!reduce && sceneVisible && !hoverPause && !dragSpin && !lightbox.classList.contains("is-open")) {
+      rotAuto += (dt / 1000) * 6;   /* one lap every ~60s */
+    }
+    var rot = spin.rot + rotAuto + rotDrag;
+    if (lastRot === null || Math.abs(rot - lastRot) > .002) {
+      cylLayout(rot);
+      lastRot = rot;
+    }
+  });
+
+  addEventListener("resize", function(){ lastRot = null; });
+}
 
 /* --- video lightbox --- */
 var lightbox = document.getElementById("lightbox");
@@ -1411,9 +1245,6 @@ function closeLightbox(){
 lightbox.addEventListener("click", function(e){ if (e.target === lightbox) closeLightbox(); });
 lightbox.querySelector(".lb-close").addEventListener("click", closeLightbox);
 addEventListener("keydown", function(e){ if (e.key === "Escape") closeLightbox(); });
-
-addEventListener("resize", layout);
-buildCards();
 
 /* ---------- timeline progress scrub ---------- */
 if (!reduce) {
