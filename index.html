@@ -308,7 +308,10 @@ section{position:relative}
   background:linear-gradient(180deg,rgba(22,17,16,.45),transparent);
 }
 .band-grid{display:grid;grid-template-columns:repeat(4,1fr)}
-.bstat{text-align:center;padding:4px 12px;border-left:1px solid var(--line)}
+.bstat{
+  display:flex;flex-direction:column;justify-content:center;
+  text-align:center;padding:4px 12px;border-left:1px solid var(--line);
+}
 .bstat:first-child{border-left:none}
 .bstat small{
   font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
@@ -319,6 +322,26 @@ section{position:relative}
   font-size:clamp(30px,4vw,46px);letter-spacing:-.03em;line-height:1;
 }
 .bstat b i{font-style:normal}
+/* the headline number: the one figure that should stop the room */
+.bstat.is-hero{position:relative}
+.bstat.is-hero::before{
+  content:"";position:absolute;left:50%;top:52%;
+  width:min(260px,90%);aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(255,90,31,.34),rgba(122,36,8,.14) 45%,transparent 70%);
+  filter:blur(38px);pointer-events:none;
+}
+.bstat.is-hero small,.bstat.is-hero b{position:relative;z-index:1}
+.bstat.is-hero small{color:var(--amber)}
+.bstat.is-hero b{
+  font-size:clamp(44px,6.2vw,74px);
+  background:linear-gradient(96deg,var(--ember) 0%,var(--amber) 38%,#FFEFD6 50%,var(--amber) 62%,var(--ember) 100%);
+  background-size:250% auto;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  padding:.06em .1em;margin:-.06em -.1em;
+  animation:shine 2.2s linear infinite alternate;
+}
 @media (max-width:700px){
   .band-grid{grid-template-columns:repeat(2,1fr);row-gap:30px}
   .bstat:nth-child(3){border-left:none}
@@ -713,7 +736,7 @@ footer{
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
-  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text,.chips i::after,.intro-glow,.intro-chev{animation:none !important}
+  body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text,.chips i::after,.intro-glow,.intro-chev,.bstat.is-hero b{animation:none !important}
   .intro-line .l1,.intro-line .l2,.intro-scroll{opacity:1 !important;transform:none !important;animation:none !important}
   .rv{opacity:1;transform:none}
   .line>span{transform:none !important}
@@ -811,7 +834,7 @@ footer{
 <section class="stats-band" id="statsBand">
   <div class="wrap band-grid">
     <div class="bstat rv"><small>AI Productions</small><b><i class="count" data-to="13">0</i></b></div>
-    <div class="bstat rv"><small>PKR in Revenue</small><b><i class="count" data-to="10">0</i>M+</b></div>
+    <div class="bstat is-hero rv"><small>PKR in Revenue</small><b><i class="count" data-to="10">0</i>M+</b></div>
     <div class="bstat rv"><small>Brief to Final Cut</small><b><i class="count" data-to="72">0</i>h</b></div>
     <div class="bstat rv"><small>Team-of-Three Output</small><b>×<i class="count" data-to="2">0</i></b></div>
   </div>
