@@ -226,7 +226,7 @@ section{position:relative}
 /* portrait arch */
 .portrait{
   position:absolute;z-index:2;
-  right:6vw;bottom:0;
+  right:6vw;bottom:12vh;
   width:min(36vw,450px);aspect-ratio:4/5;
   border-radius:50% 50% 0 0 / 42% 42% 0 0;
   background:linear-gradient(150deg,var(--ember) 0%,var(--amber) 55%,var(--deep) 130%);
@@ -250,7 +250,7 @@ section{position:relative}
 }
 .badge{
   position:absolute;z-index:4;
-  right:calc(6vw + 12px);bottom:56px;
+  right:calc(6vw + 12px);bottom:calc(12vh + 56px);
   display:flex;align-items:center;gap:9px;
   font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
   padding:11px 18px;border-radius:100px;
@@ -732,12 +732,15 @@ footer{
 }
 @keyframes introUp{to{opacity:1;transform:translateY(0)}}
 .intro-scroll{
-  position:absolute;left:50%;bottom:6vh;transform:translateX(-50%);z-index:1;
+  position:absolute;left:50%;bottom:6vh;z-index:1;
   font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--muted);
   display:flex;flex-direction:column;align-items:center;gap:14px;
-  opacity:0;animation:introUp 1s var(--ease-out) 1.1s forwards;
+  /* own keyframe keeps the -50% horizontal centering that introUp would wipe */
+  opacity:0;transform:translate(-50%,22px);
+  animation:introScrollUp 1s var(--ease-out) 1.1s forwards;
 }
+@keyframes introScrollUp{to{opacity:1;transform:translate(-50%,0)}}
 .intro-chev{
   width:20px;height:20px;
   border-right:2px solid var(--ember);border-bottom:2px solid var(--ember);
@@ -751,7 +754,8 @@ footer{
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
   body::after,.hero-ring::before,.marquee,.badge .pulse,.grad-text,.chips i::after,.intro-glow,.intro-chev,.bstat.is-hero b{animation:none !important}
-  .intro-line .l1,.intro-line .l2,.intro-scroll{opacity:1 !important;transform:none !important;animation:none !important}
+  .intro-line .l1,.intro-line .l2{opacity:1 !important;transform:none !important;animation:none !important}
+  .intro-scroll{opacity:1 !important;transform:translate(-50%,0) !important;animation:none !important}
   .rv{opacity:1;transform:none}
   .line>span{transform:none !important}
   *{transition-duration:.01ms !important}
