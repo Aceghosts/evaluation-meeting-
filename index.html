@@ -539,6 +539,9 @@ section{position:relative}
 .about,.journey,.nextyear{position:relative}
 .about::before,.journey::before,.nextyear::before{
   content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  /* fade the backdrop out at top and bottom so sections blend seamlessly */
+  -webkit-mask:linear-gradient(180deg,transparent 0,#000 16%,#000 84%,transparent 100%);
+  mask:linear-gradient(180deg,transparent 0,#000 16%,#000 84%,transparent 100%);
 }
 .about::before{
   background:linear-gradient(90deg,rgba(11,9,8,.94) 0%,rgba(11,9,8,.58) 55%,rgba(11,9,8,.4) 100%),
