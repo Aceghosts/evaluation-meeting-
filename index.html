@@ -105,6 +105,9 @@ body::after{
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;
   padding:.08em .14em;margin:-.08em -.14em;
+  /* clone: when the phrase wraps, every line fragment gets its own padding,
+     so italic overhang at a line break is not cropped */
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;
   animation:shine 2.2s linear infinite alternate;
 }
 @keyframes shine{to{background-position:100% 0}}
