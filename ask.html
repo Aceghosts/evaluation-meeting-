@@ -301,6 +301,16 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
   font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
   color:var(--ember);margin-bottom:8px;
 }
+/* ---------- animated blur digits (lever readouts) ---------- */
+.an-num{font-variant-numeric:tabular-nums}
+.an-slot{position:relative;display:inline-block;width:1ch;overflow:hidden}
+.an-ch{
+  display:inline-block;will-change:transform,filter;
+  transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .22s ease,filter .22s ease;
+}
+.an-ch.an-out{position:absolute;left:0;top:0;opacity:0;filter:blur(5px)}
+.an-ch.an-in{opacity:0;filter:blur(5px)}
+
 /* ---------- the Alto ---------- */
 .alto-card{
   display:grid;grid-template-columns:1.1fr .9fr;gap:30px;align-items:center;
@@ -501,6 +511,52 @@ function takeHome(grossK){
   return Math.round(netK / 5) * 5;
 }
 
+/* animated blur digits: each place value keeps its slot; a changed digit rolls
+   out with blur while the new one rolls in, direction following the value */
+function animNum(el){
+  if (!el) return { set: function(){} };
+  if (reduce) return { set: function(v){ el.textContent = v; } };
+  el.classList.add("an-num");
+  var slots = [], cur = null;
+  function build(str){
+    el.textContent = "";
+    slots = [];
+    for (var i = 0; i < str.length; i++){
+      var s = document.createElement("span"); s.className = "an-slot";
+      var c = document.createElement("span"); c.className = "an-ch";
+      c.textContent = str[i];
+      s.appendChild(c); el.appendChild(s);
+      slots.push({ el: s, ch: c, val: str[i], out: null });
+    }
+  }
+  function spin(slot, ch, dir){
+    if (slot.out) { slot.out.remove(); slot.out = null; }
+    var old = slot.ch;
+    var nu = document.createElement("span");
+    nu.className = "an-ch an-in";
+    nu.textContent = ch;
+    nu.style.transform = "translateY(" + (dir >= 0 ? ".6em" : "-.6em") + ")";
+    slot.el.appendChild(nu);
+    old.classList.add("an-out");                 /* drops out of flow; nu takes its place */
+    old.style.transform = "translateY(" + (dir >= 0 ? "-.6em" : ".6em") + ")";
+    slot.out = old;
+    void nu.offsetWidth;                         /* commit the start state */
+    nu.classList.remove("an-in");
+    nu.style.transform = "";
+    slot.ch = nu;
+    setTimeout(function(){ old.remove(); if (slot.out === old) slot.out = null; }, 260);
+  }
+  return { set: function(v){
+    var str = String(v);
+    if (cur === null || str.length !== cur.length) { build(str); cur = str; return; }
+    var dir = parseInt(str, 10) >= parseInt(cur, 10) ? 1 : -1;
+    for (var i = 0; i < str.length; i++){
+      if (slots[i].val !== str[i]) { spin(slots[i], str[i], dir); slots[i].val = str[i]; }
+    }
+    cur = str;
+  } };
+}
+
 /* the lever always finds its way home */
 function wireLever(){
   var lever = document.getElementById("lever");
@@ -513,7 +569,9 @@ function wireLever(){
   var quips = ["Nice try.", "The lever disagrees.", "It keeps doing that.", "Almost. Not quite.", "The math says otherwise."];
   var qi = 0;
   var snapping = false;
-  function showNet(v){ if (net) net.textContent = takeHome(v); }
+  var valNum = animNum(val), netNum = animNum(net);
+  function showNet(v){ if (net) netNum.set(takeHome(v)); }
+  valNum.set(lever.value);
   showNet(parseInt(lever.value, 10));
   var toggle = document.getElementById("taxToggle");
   var netWrap = document.getElementById("leverNetWrap");
@@ -526,7 +584,7 @@ function wireLever(){
   }
   lever.addEventListener("input", function(){
     if (snapping) return;
-    val.textContent = lever.value;
+    valNum.set(lever.value);
     showNet(parseInt(lever.value, 10));
     msg.textContent = "Your offer";
     read.classList.remove("is-win");
@@ -548,12 +606,12 @@ function wireLever(){
       v: target, duration: reduce ? .01 : 1.4, ease: "elastic.out(1,.35)",
       onUpdate: function(){
         lever.value = Math.round(obj.v);
-        val.textContent = Math.round(obj.v);
+        valNum.set(Math.round(obj.v));
         showNet(Math.round(obj.v));
       },
       onComplete: function(){
         lever.value = target;
-        val.textContent = target;
+        valNum.set(target);
         showNet(target);
         read.classList.add("is-win");
         snapping = false;

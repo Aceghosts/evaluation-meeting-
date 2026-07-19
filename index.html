@@ -806,21 +806,25 @@ footer{
   *{transition-duration:.01ms !important}
 }
 
-/* ---------- page transition to the ask ---------- */
+/* ---------- page transition to the ask (pure CSS: no dependence on JS animation ticks) ---------- */
 .page-wipe{
   position:fixed;inset:0;z-index:9999;
   display:flex;align-items:center;justify-content:center;
   pointer-events:none;visibility:hidden;
   transform:translateY(100%);
+  will-change:transform;
+  transition:transform .65s cubic-bezier(.65,0,.35,1);
   background:
     radial-gradient(120% 90% at 50% 120%, rgba(255,90,31,.35), transparent 60%),
     linear-gradient(180deg,#0B0908 0%,#140B07 60%,#1E0E05 100%);
 }
-.page-wipe.is-active{visibility:visible;pointer-events:all}
+.page-wipe.is-active{visibility:visible;pointer-events:all;transform:translateY(0)}
 .page-wipe .pw-inner{
   display:flex;flex-direction:column;align-items:center;gap:18px;
   opacity:0;transform:translateY(12px);
+  transition:opacity .32s ease-out .42s, transform .32s ease-out .42s;
 }
+.page-wipe.is-active .pw-inner{opacity:1;transform:translateY(0)}
 .page-wipe .pw-label{
   font-size:13px;letter-spacing:.32em;text-transform:uppercase;
   color:var(--amber);font-weight:600;
@@ -1658,15 +1662,11 @@ if (!reduce) {
   function go(href){
     if (going) return;
     going = true;
-    if (reduce || typeof gsap === "undefined") { window.location.href = href; return; }
+    if (reduce) { window.location.href = href; return; }
     if (lenis && lenis.stop) lenis.stop();
-    wipe.classList.add("is-active"); // triggers the accent-line fill via CSS
-    var tl = gsap.timeline({ onComplete: function(){ window.location.href = href; } });
-    tl.fromTo(wipe, { yPercent: 100 }, { yPercent: 0, duration: 0.6, ease: "power3.inOut" })
-      .fromTo(inner, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.32, ease: "power2.out" }, "-=0.18")
-      .to({}, { duration: 0.42 }); // hold on the covered screen, then navigate
-    // safety net: navigate even if the timeline is interrupted
-    setTimeout(function(){ if (going) window.location.href = href; }, 1300);
+    void wipe.offsetWidth;               /* commit the off-screen start state */
+    wipe.classList.add("is-active");     /* CSS transitions do the rest: curtain, label, line fill */
+    setTimeout(function(){ window.location.href = href; }, 1500);
   }
 
   links.forEach(function(a){
