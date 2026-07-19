@@ -447,7 +447,9 @@ section{position:relative}
   aspect-ratio:4/5;object-fit:cover;object-position:center bottom;
 }
 @media (max-width:900px){
-  .about-photo{max-width:440px;margin:0 auto}
+  /* explicit width: auto margins stop grid stretch, and a content-sized box
+     would collapse to a sliver until the lazy image loads */
+  .about-photo{width:min(100%,440px);margin:0 auto}
 }
 /* ---------- work / glass player collage ---------- */
 .work{padding:110px 0 40px;overflow:hidden}
