@@ -805,6 +805,47 @@ footer{
   .line>span{transform:none !important}
   *{transition-duration:.01ms !important}
 }
+
+/* ---------- page transition to the ask ---------- */
+.page-wipe{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;visibility:hidden;
+  transform:translateY(100%);
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(255,90,31,.35), transparent 60%),
+    linear-gradient(180deg,#0B0908 0%,#140B07 60%,#1E0E05 100%);
+}
+.page-wipe.is-active{visibility:visible;pointer-events:all}
+.page-wipe .pw-inner{
+  display:flex;flex-direction:column;align-items:center;gap:18px;
+  opacity:0;transform:translateY(12px);
+}
+.page-wipe .pw-label{
+  font-size:13px;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--amber);font-weight:600;
+}
+.page-wipe .pw-word{
+  font-family:inherit;font-size:clamp(28px,5vw,52px);font-weight:800;
+  letter-spacing:-.01em;color:var(--cream);line-height:1;
+}
+.page-wipe .pw-word em{
+  font-style:italic;
+  background:linear-gradient(96deg,var(--ember),var(--amber));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.page-wipe .pw-line{
+  width:180px;height:2px;margin-top:6px;border-radius:2px;
+  background:var(--line);overflow:hidden;position:relative;
+}
+.page-wipe .pw-line::after{
+  content:"";position:absolute;inset:0;transform:scaleX(0);transform-origin:left;
+  background:linear-gradient(90deg,var(--ember),var(--amber));
+}
+.page-wipe.is-active .pw-line::after{
+  transform:scaleX(1);
+  transition:transform .55s cubic-bezier(.4,0,.2,1) .3s;
+}
 </style>
 </head>
 <body>
@@ -918,8 +959,7 @@ footer{
       <strong>the innovation nobody asked for</strong>.</p>
       <p class="rv">Self-taught AI builder with no formal tech background, just a businessman's
       instinct to <strong>multiply instead of add</strong>. I introduced AI tools to every team
-      member before the industry caught up. No budget requested. No mandate given.
-      The tools cost almost nothing; <strong>the results came before the investment did</strong>.</p>
+      member before the industry caught up.</p>
       <p class="rv">The philosophy behind everything: <strong>build systems that compress time
       and remove dependencies.</strong> A fragmented, slow team became a <strong>consistent
       high-output unit</strong> that absorbs upstream delays without ever letting delivery suffer.</p>
@@ -1007,15 +1047,6 @@ footer{
         revenue for the agency.</p>
         <div class="chips"><i>JS Investment</i><i>itel Signal 10</i><i>Signal 10 Nigeria</i><i>Capri Deo Male</i><i>Capri Deo Female</i><i>Levoplant</i><i>Indus</i><i>PSO Doodle</i><i>MD Farewell</i><i>Krone Shower Gel</i><i>itel A200+</i><i>Capri Handwash</i><i>Hype Body Mist</i></div>
       </div>
-      <div class="entry rv">
-        <div class="when">Next Year · The Offer</div>
-        <h3>The Multiplier <span>· Six Forward Proposals</span></h3>
-        <p>A campaign vault with auto-generated award submissions. Concave V2, fully deployed.
-        Custom AI pitch pages for every high-value prospect. An on-camera AI series for Convex's
-        social channels. A structured AI training program for staff. Efficiency and independence:
-        every tool either compresses time or removes a dependency.</p>
-        <div class="chips"><i>Campaign Vault</i><i>Concave V2</i><i>AI Pitch Pages</i><i>AI Series</i><i>Training Program</i><i>ShotCaller</i></div>
-      </div>
     </div>
   </div>
 </section>
@@ -1102,6 +1133,14 @@ footer{
       <button class="lb-close" aria-label="Close">✕</button>
     </div>
     <div class="lb-frame"></div>
+  </div>
+</div>
+
+<div class="page-wipe" id="pageWipe" aria-hidden="true">
+  <div class="pw-inner">
+    <div class="pw-label">The Close</div>
+    <div class="pw-word">Opening <em>the ask</em></div>
+    <div class="pw-line"></div>
   </div>
 </div>
 
@@ -1401,6 +1440,7 @@ CYL.forEach(function(p, i){
     card.addEventListener("mouseenter", function(){ dot.classList.add("is-hover"); });
     card.addEventListener("mouseleave", function(){ dot.classList.remove("is-hover"); });
   }
+  card._in = reduce ? 1 : 0;   /* entrance factor: cylLayout multiplies it in, so the stagger survives the render loop */
   scene.appendChild(card);
   gcards.push(card);
 });
@@ -1415,10 +1455,11 @@ function cylLayout(rot){
     var x = Math.sin(rad) * R;
     var z = (Math.cos(rad) - 1) * R * .55;
     var ry = Math.sin(rad) * -30;
-    card.style.transform = "translate(-50%,-50%) translate3d(" + x.toFixed(1) + "px,0," + z.toFixed(1) + "px) rotateY(" + ry.toFixed(1) + "deg) scale(" + (.55 + .45 * d).toFixed(3) + ")";
-    card.style.opacity = (.25 + .75 * d).toFixed(3);
+    var ein = card._in == null ? 1 : card._in;   /* 0 = not entered yet, 1 = fully in */
+    card.style.transform = "translate(-50%,-50%) translate3d(" + x.toFixed(1) + "px,0," + z.toFixed(1) + "px) rotateY(" + ry.toFixed(1) + "deg) scale(" + ((.55 + .45 * d) * (.7 + .3 * ein)).toFixed(3) + ")";
+    card.style.opacity = ((.25 + .75 * d) * ein).toFixed(3);
     card.style.zIndex = Math.round(10 + d * 80);   /* portrait sits at 50 */
-    card.style.pointerEvents = d < .3 ? "none" : "";
+    card.style.pointerEvents = (d < .3 || ein < .5) ? "none" : "";
     card.style.filter = d > .88 ? "" : "brightness(" + (.5 + .5 * d).toFixed(2) + ") saturate(.9)";
   });
 }
@@ -1433,12 +1474,18 @@ var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
   }, { threshold: .15 }).observe(scene);
 
   if (!reduce) {
-    /* entrance: fade the whole stage in (per-card tweens would fight cylLayout) */
+    /* entrance: the photo fades in first, then the players join one by one.
+       Per-card CSS tweens would fight cylLayout, so we stagger each card's
+       _in factor instead and let the render loop apply it. */
     gsap.set(scene, { autoAlpha: 0 });
-    gsap.to(scene, {
-      autoAlpha: 1, duration: 1.1, ease: "power3.out",
+    var enterTl = gsap.timeline({
       scrollTrigger: { trigger: ".work", start: "top 60%", once: true }
     });
+    enterTl.to(scene, { autoAlpha: 1, duration: 1.0, ease: "power3.out" })
+           .to(gcards, {
+             _in: 1, duration: .55, ease: "power2.out", stagger: .13,
+             onUpdate: function(){ lastRot = null; }   /* force cylLayout to repaint even if the ring is paused */
+           }, "+=0.2");
   }
 
 
@@ -1593,6 +1640,37 @@ if (!reduce) {
 } else {
   document.getElementById("expProgress").style.transform = "scaleY(1)";
 }
+
+/* ---------- page transition into the ask ---------- */
+(function(){
+  var wipe = document.getElementById("pageWipe");
+  if (!wipe) return;
+  var inner = wipe.querySelector(".pw-inner");
+  var links = document.querySelectorAll('a[href="ask.html"]');
+  var going = false;
+
+  function go(href){
+    if (going) return;
+    going = true;
+    if (reduce || typeof gsap === "undefined") { window.location.href = href; return; }
+    if (lenis && lenis.stop) lenis.stop();
+    wipe.classList.add("is-active"); // triggers the accent-line fill via CSS
+    var tl = gsap.timeline({ onComplete: function(){ window.location.href = href; } });
+    tl.fromTo(wipe, { yPercent: 100 }, { yPercent: 0, duration: 0.6, ease: "power3.inOut" })
+      .fromTo(inner, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.32, ease: "power2.out" }, "-=0.18")
+      .to({}, { duration: 0.42 }); // hold on the covered screen, then navigate
+    // safety net: navigate even if the timeline is interrupted
+    setTimeout(function(){ if (going) window.location.href = href; }, 1300);
+  }
+
+  links.forEach(function(a){
+    a.addEventListener("click", function(e){
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; // let new-tab shortcuts through
+      e.preventDefault();
+      go(a.getAttribute("href"));
+    });
+  });
+})();
 
 })();
 </script>

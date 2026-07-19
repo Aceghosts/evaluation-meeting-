@@ -564,14 +564,32 @@ function wireLever(){
   lever.addEventListener("pointerup", release);
 }
 
+/* the horn is created and primed during the unlock gesture so the first tap plays */
+var horn = new Audio("images/car-horn.mp3");
+horn.preload = "auto";
+var hornPrimed = false;
+function primeHorn(){
+  if (hornPrimed) return;
+  hornPrimed = true;
+  var wasMuted = horn.muted;
+  horn.muted = true;
+  var p = horn.play();
+  if (p && p.then) {
+    p.then(function(){ horn.pause(); try { horn.currentTime = 0; } catch (e) {} horn.muted = wasMuted; })
+     .catch(function(){ horn.muted = wasMuted; });
+  } else {
+    horn.muted = wasMuted;
+  }
+}
+
 /* tap the Alto to honk */
 function wireCar(){
   var carEl = document.getElementById("altoCar");
   if (!carEl) return;
-  var horn = new Audio("images/car-horn.mp3");
-  horn.preload = "auto";
   function honk(){
-    try { horn.currentTime = 0; horn.play(); } catch (e) {}
+    try { horn.currentTime = 0; } catch (e) {}
+    var p = horn.play();
+    if (p && p.catch) p.catch(function(){});
     carEl.classList.remove("honk");
     void carEl.offsetWidth;
     carEl.classList.add("honk");
@@ -607,8 +625,8 @@ function tryUnlock(){
     input.focus();
   });
 }
-document.getElementById("gateBtn").addEventListener("click", tryUnlock);
-input.addEventListener("keydown", function(e){ if (e.key === "Enter") tryUnlock(); });
+document.getElementById("gateBtn").addEventListener("click", function(){ primeHorn(); tryUnlock(); });
+input.addEventListener("keydown", function(e){ if (e.key === "Enter") { primeHorn(); tryUnlock(); } });
 })();
 </script>
 </body>
