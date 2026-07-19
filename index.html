@@ -703,15 +703,34 @@ section{position:relative}
 .nextyear h2{font-size:clamp(34px,4.6vw,58px);margin-top:22px}
 .bento{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:54px}
 .bcard{
-  position:relative;
+  position:relative;overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-between;gap:42px;
   min-height:200px;
-  background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  border-radius:20px;
+  border:1px solid transparent;
+  background:
+    linear-gradient(160deg,#1F140E 0%,#16100A 55%,#1A0F08 100%) padding-box,
+    linear-gradient(150deg,rgba(255,138,60,.38),rgba(244,237,228,.06) 45%,rgba(255,90,31,.22)) border-box;
   padding:28px 30px;
-  transition:transform .3s var(--ease-soft),border-color .3s var(--ease-soft),background .3s var(--ease-soft);
+  transition:transform .3s var(--ease-soft);
   will-change:transform;
 }
-.bcard:hover{transform:translateY(-4px);border-color:rgba(255,179,92,.35);background:var(--surface-2)}
+/* ember bloom in the corner, brought up on hover */
+.bcard::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(130% 110% at 100% 0%,rgba(255,90,31,.16),transparent 58%);
+  opacity:.45;transition:opacity .35s var(--ease-soft);
+}
+.bcard:hover{transform:translateY(-4px)}
+.bcard:hover::after{opacity:1}
+/* ghost proposal number, each card carries its own */
+.bcard::before{
+  content:attr(data-n);position:absolute;right:-10px;bottom:-34px;pointer-events:none;
+  font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:150px;line-height:1;
+  letter-spacing:-.04em;color:rgba(255,110,45,.07);
+  transition:color .35s var(--ease-soft);
+}
+.bcard:hover::before{color:rgba(255,110,45,.13)}
 .bcard.wide{grid-column:1/-1;min-height:0}
 .bcard p{color:var(--muted);font-size:14px;line-height:1.65;margin:0;padding-right:58px;max-width:66ch}
 .bcard h3{
@@ -1103,7 +1122,7 @@ footer{
     <div class="eyebrow rv">Next Year</div>
     <h2 class="display rv">Six proposals, <em class="grad-text">on the table</em>.</h2>
     <div class="bento">
-      <div class="bcard wide rv">
+      <div class="bcard wide rv" data-n="01">
         <p>Every completed campaign gets logged: brief, objective, creative rationale, execution,
         results, assets. At award season: select the campaign, select the award, and the system
         auto-generates a formatted submission. Produces client-facing case studies too.
@@ -1111,31 +1130,31 @@ footer{
         <h3><small>Proposal 01 · Headline</small>Campaign Vault &amp; Award Submission System</h3>
         <span class="go">↗</span>
       </div>
-      <a class="bcard rv" href="https://concave-app.vercel.app/" target="_blank" rel="noopener">
+      <a class="bcard rv" data-n="02" href="https://concave-app.vercel.app/" target="_blank" rel="noopener">
         <p>Finish and fully deploy internally. Every brief scored across six performance dimensions
         before production begins. Already 80% built. Already live.</p>
         <h3><small>Proposal 02</small>Concave V2</h3>
         <span class="go">↗</span>
       </a>
-      <a class="bcard rv" href="https://tiggo8-phev-final.vercel.app/" target="_blank" rel="noopener">
+      <a class="bcard rv" data-n="03" href="https://tiggo8-phev-final.vercel.app/" target="_blank" rel="noopener">
         <p>Every high-value prospect receives a custom-built branded web experience before the
         first meeting. The Tiggo 8 bible, turned into a repeatable system.</p>
         <h3><small>Proposal 03</small>AI Pitch Pages</h3>
         <span class="go">↗</span>
       </a>
-      <div class="bcard rv">
+      <div class="bcard rv" data-n="04">
         <p>The on-screen AI expert for Convex's social content. Creative team produces; I bring
         the knowledge and the face. Zero extra cost, and it positions Convex as the AI agency in Pakistan.</p>
         <h3><small>Proposal 04</small>Instagram AI Series</h3>
         <span class="go">↗</span>
       </div>
-      <div class="bcard rv">
+      <div class="bcard rv" data-n="05">
         <p>Structured AI education for Convex staff: certified courses, hands-on sessions, real
         tools. Every trained employee becomes more capable, more loyal, more motivated to stay.</p>
         <h3><small>Proposal 05</small>Internal AI Training Program</h3>
         <span class="go">↗</span>
       </div>
-      <a class="bcard wide rv" href="shotcaller/" target="_blank" rel="noopener">
+      <a class="bcard wide rv" data-n="06" href="shotcaller/" target="_blank" rel="noopener">
         <p>Every AI film starts with a prompt, and imprecise prompts burn credits and hours. ShotCaller
         turns a script into paste-ready, broadcast-precise prompts with the camera language already
         dialled in, so the whole team generates at a director's level instead of guessing. It learns
