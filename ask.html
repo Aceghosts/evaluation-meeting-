@@ -666,6 +666,17 @@ var card = document.getElementById("gateCard");
 var input = document.getElementById("gatePw");
 var errEl = document.getElementById("gateError");
 
+/* the gate has opinions about imposters; the quips escalate with each attempt */
+var gateQuips = [
+  "Nice try, imposter.",
+  "This page knows exactly who it is waiting for.",
+  "Not even close.",
+  "Bhai, ye page sab ke liye nahi hai.",
+  "Persistence noted. Access denied.",
+  "The ask stays sealed. The imposter stays out."
+];
+var gateTries = 0;
+
 function tryUnlock(){
   var pw = input.value.trim();
   if (!pw) return;
@@ -677,7 +688,7 @@ function tryUnlock(){
     wireLever();
     wireCar();
   }).catch(function(){
-    errEl.textContent = "Wrong password";
+    errEl.textContent = gateQuips[gateTries++ % gateQuips.length];
     input.value = "";
     card.classList.remove("shake");
     void card.offsetWidth;
