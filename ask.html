@@ -196,8 +196,15 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
 .ladder-note strong{color:var(--cream);font-weight:600}
 .role-card{
   position:relative;overflow:hidden;
-  background:var(--surface);border:1px solid var(--line);border-radius:22px;
+  border:1px solid rgba(255,255,255,.22);border-radius:22px;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 60%);
+  backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
   padding:30px 32px;margin-bottom:18px;
+}
+.role-card::after,.lever-card::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(125deg,rgba(255,255,255,.14),rgba(255,255,255,0) 45%);
 }
 .role-card::before{
   content:"";position:absolute;width:300px;height:300px;border-radius:50%;
@@ -223,7 +230,10 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
 /* the lever that knows its worth */
 .lever-card{
   position:relative;overflow:hidden;
-  background:var(--surface);border:1px solid var(--line);border-radius:22px;
+  border:1px solid rgba(255,255,255,.22);border-radius:22px;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 60%);
+  backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3);
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
   padding:30px 32px;margin-bottom:18px;
 }
 .lever-sub{color:var(--muted);font-size:14px;margin:-10px 0 24px}
