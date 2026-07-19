@@ -486,15 +486,17 @@ function burst(el){
   }
 }
 
-/* Pakistan FY2025-26 salaried slabs → monthly take-home, rounded to the nearest 5K */
+/* Pakistan FY2026-27 salaried slabs → monthly take-home, rounded to the nearest 5K */
 function takeHome(grossK){
   var annual = grossK * 1000 * 12, t;
   if (annual <= 600000)        t = 0;
   else if (annual <= 1200000)  t = (annual - 600000) * 0.01;
-  else if (annual <= 2200000)  t = 6000  + (annual - 1200000) * 0.11;
-  else if (annual <= 3200000)  t = 116000 + (annual - 2200000) * 0.23;
-  else if (annual <= 4100000)  t = 346000 + (annual - 3200000) * 0.30;
-  else                         t = 616000 + (annual - 4100000) * 0.35;
+  else if (annual <= 2200000)  t = 6000    + (annual - 1200000) * 0.11;
+  else if (annual <= 3200000)  t = 116000  + (annual - 2200000) * 0.20;
+  else if (annual <= 4100000)  t = 316000  + (annual - 3200000) * 0.25;
+  else if (annual <= 5600000)  t = 541000  + (annual - 4100000) * 0.29;
+  else if (annual <= 7000000)  t = 976000  + (annual - 5600000) * 0.32;
+  else                         t = 1424000 + (annual - 7000000) * 0.35;
   var netK = (grossK * 1000 - t / 12) / 1000;
   return Math.round(netK / 5) * 5;
 }
