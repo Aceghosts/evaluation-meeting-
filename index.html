@@ -1476,16 +1476,22 @@ var hoverPause = false, dragSpin = false, didSpin = false, sceneVisible = false;
   if (!reduce) {
     /* entrance: the photo fades in first, then the players join one by one.
        Per-card CSS tweens would fight cylLayout, so we stagger each card's
-       _in factor instead and let the render loop apply it. */
+       _in factor instead and let the render loop apply it.
+       Driven by IntersectionObserver + double-rAF (not ScrollTrigger) so a
+       refresh that restores scroll into the section still plays it on screen. */
     gsap.set(scene, { autoAlpha: 0 });
-    var enterTl = gsap.timeline({
-      scrollTrigger: { trigger: ".work", start: "top 60%", once: true }
-    });
+    var enterTl = gsap.timeline({ paused: true });
     enterTl.to(scene, { autoAlpha: 1, duration: 1.0, ease: "power3.out" })
            .to(gcards, {
              _in: 1, duration: .55, ease: "power2.out", stagger: .13,
              onUpdate: function(){ lastRot = null; }   /* force cylLayout to repaint even if the ring is paused */
            }, "+=0.2");
+    new IntersectionObserver(function(entries, obs){
+      if (!entries[0].isIntersecting) return;
+      obs.disconnect();
+      /* two frames so the first paint lands before the reveal starts */
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ enterTl.play(); }); });
+    }, { threshold: .2 }).observe(scene);
   }
 
 
