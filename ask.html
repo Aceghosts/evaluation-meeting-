@@ -666,7 +666,8 @@ var card = document.getElementById("gateCard");
 var input = document.getElementById("gatePw");
 var errEl = document.getElementById("gateError");
 
-/* the gate has opinions about imposters; the quips escalate with each attempt */
+/* the gate has opinions about imposters; a shuffled deck, so every quip
+   shows before any repeats, in a fresh order each time */
 var gateQuips = [
   "Nice try, imposter.",
   "This page knows exactly who it is waiting for.",
@@ -675,7 +676,17 @@ var gateQuips = [
   "Persistence noted. Access denied.",
   "The ask stays sealed. The imposter stays out."
 ];
-var gateTries = 0;
+var gateDeck = [];
+function nextQuip(){
+  if (!gateDeck.length) {
+    gateDeck = gateQuips.slice();
+    for (var i = gateDeck.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = gateDeck[i]; gateDeck[i] = gateDeck[j]; gateDeck[j] = t;
+    }
+  }
+  return gateDeck.pop();
+}
 
 function tryUnlock(){
   var pw = input.value.trim();
@@ -688,7 +699,7 @@ function tryUnlock(){
     wireLever();
     wireCar();
   }).catch(function(){
-    errEl.textContent = gateQuips[gateTries++ % gateQuips.length];
+    errEl.textContent = nextQuip();
     input.value = "";
     card.classList.remove("shake");
     void card.offsetWidth;
