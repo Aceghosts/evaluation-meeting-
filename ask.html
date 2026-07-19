@@ -291,6 +291,33 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
 @media (max-width:760px){.lever-read{text-align:left}}
 .confetti-bit{position:fixed;z-index:400;pointer-events:none;will-change:transform,opacity}
 
+/* wrong-password meme popup */
+.meme-pop{
+  position:fixed;inset:0;z-index:600;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(11,9,8,.72);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+.meme-pop[hidden]{display:none}
+.meme-box{
+  position:relative;width:min(440px,90vw);
+  border:1px solid rgba(255,255,255,.25);border-radius:18px;overflow:hidden;
+  background:#0B0908;
+  box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 60px rgba(255,90,31,.15);
+  animation:memeIn .35s var(--ease-out);
+}
+@keyframes memeIn{from{opacity:0;transform:scale(.92) translateY(14px)}to{opacity:1;transform:none}}
+.meme-box video{display:block;width:100%;height:auto}
+.meme-close{
+  position:absolute;top:10px;right:10px;z-index:1;
+  width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.3);
+  background:rgba(11,9,8,.65);color:var(--cream);font-size:14px;cursor:pointer;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  transition:border-color .25s var(--ease-soft),transform .25s var(--ease-soft);
+}
+.meme-close:hover{border-color:rgba(255,179,92,.6);transform:rotate(90deg)}
+@media (prefers-reduced-motion:reduce){.meme-box{animation:none}}
+
 /* fixed video backdrop, slowed in JS; the veil keeps the numbers readable */
 .bg-vid{
   position:fixed;inset:0;width:100%;height:100%;object-fit:cover;
@@ -452,6 +479,13 @@ footer{
 
   <div id="askContent"></div>
 </main>
+
+<div class="meme-pop" id="memePop" hidden>
+  <div class="meme-box">
+    <button class="meme-close" id="memeClose" aria-label="Close">✕</button>
+    <video id="memeVid" src="images/gate-meme.mp4" playsinline></video>
+  </div>
+</div>
 
 <footer>
   <div class="wrap foot-inner">
@@ -719,6 +753,30 @@ var gateQuips = [
   "Persistence noted. Access denied.",
   "The ask stays sealed. The imposter stays out."
 ];
+/* the first wrong attempt gets the meme; after that, just the quips */
+var memePop = document.getElementById("memePop");
+var memeVid = document.getElementById("memeVid");
+var memeShown = false;
+function openMeme(){
+  if (memeShown || !memePop) return;
+  memeShown = true;
+  memePop.removeAttribute("hidden");
+  var p = memeVid.play();
+  if (p && p.catch) p.catch(function(){});
+}
+function closeMeme(){
+  if (!memePop || memePop.hasAttribute("hidden")) return;
+  memeVid.pause();
+  memePop.setAttribute("hidden", "");
+  input.focus();
+}
+if (memePop) {
+  document.getElementById("memeClose").addEventListener("click", closeMeme);
+  memePop.addEventListener("click", function(e){ if (e.target === memePop) closeMeme(); });
+  memeVid.addEventListener("ended", closeMeme);
+  addEventListener("keydown", function(e){ if (e.key === "Escape") closeMeme(); });
+}
+
 var gateDeck = [];
 function nextQuip(){
   if (!gateDeck.length) {
@@ -742,6 +800,7 @@ function tryUnlock(){
     wireLever();
     wireCar();
   }).catch(function(){
+    openMeme();
     errEl.textContent = nextQuip();
     input.value = "";
     card.classList.remove("shake");
