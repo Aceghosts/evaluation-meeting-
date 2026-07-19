@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campaign Vault · Convex Interactive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<style>
+:root{
+  --bg:#F6F6F4;
+  --surface:#FFFFFF;
+  --surface-2:#FBFAF9;
+  --ink:#1C1917;
+  --ink-2:#44403C;
+  --muted:#8A857E;
+  --line:#E9E7E4;
+  --line-2:#DEDBD7;
+  --accent:#E8551F;
+  --accent-ink:#B93F12;
+  --accent-soft:#FDEEE7;
+  --accent-soft-2:#FBE1D5;
+  --good:#1F9D6B;
+  --radius:14px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --shadow-sm:0 1px 2px rgba(28,25,23,.06),0 1px 3px rgba(28,25,23,.05);
+  --shadow-md:0 4px 16px rgba(28,25,23,.08),0 2px 4px rgba(28,25,23,.04);
+  --shadow-lg:0 18px 50px rgba(28,25,23,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Instrument Sans',sans-serif;font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent-soft-2)}
+button,input,textarea,select{font-family:inherit}
+button{cursor:pointer;border:none;background:none;color:inherit}
+a{color:inherit;text-decoration:none}
+.mono{font-family:'Space Grotesk',sans-serif}
+.uc{text-transform:uppercase;letter-spacing:.12em}
+
+/* ---------- app shell ---------- */
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+.sidebar{
+  background:var(--surface);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;
+}
+.brand{
+  display:flex;align-items:center;gap:11px;
+  padding:22px 22px 20px;
+}
+.brand-mark{
+  width:32px;height:32px;border-radius:9px;flex:none;
+  background:linear-gradient(135deg,var(--accent),#F5893F);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;box-shadow:var(--shadow-sm);
+}
+.brand-mark svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.brand b{font-size:15px;font-weight:600;letter-spacing:-.01em;display:block;line-height:1.15}
+.brand small{font-size:11px;color:var(--muted)}
+.nav{padding:6px 12px;display:flex;flex-direction:column;gap:2px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 12px;border-radius:9px;
+  font-size:14px;font-weight:500;color:var(--ink-2);
+  transition:background .15s var(--ease),color .15s var(--ease);
+  text-align:left;width:100%;
+}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.nav-item:hover{background:var(--surface-2)}
+.nav-item.active{background:var(--accent-soft);color:var(--accent-ink)}
+.nav-item.active svg{opacity:1}
+.side-foot{margin-top:auto;padding:16px 22px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.side-foot b{color:var(--ink-2);font-weight:600}
+
+/* ---------- main ---------- */
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:rgba(246,246,244,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:16px;
+  padding:14px 30px;
+}
+.search{
+  flex:1;max-width:420px;position:relative;
+}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.8}
+.search input{
+  width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:9px 14px 9px 38px;font-size:14px;color:var(--ink);outline:none;
+  transition:border-color .15s var(--ease),box-shadow .15s var(--ease);
+}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.spacer{flex:1}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 16px;border-radius:10px;font-size:14px;font-weight:600;
+  transition:transform .12s var(--ease),box-shadow .15s var(--ease),background .15s var(--ease),border-color .15s var(--ease);
+  white-space:nowrap;
+}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:var(--shadow-sm)}
+.btn-primary:hover{background:var(--accent-ink)}
+.btn-primary:active{transform:translateY(1px)}
+.btn-ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--ink-2)}
+.btn-ghost:hover{border-color:var(--muted);background:var(--surface-2)}
+.btn-soft{background:var(--accent-soft);color:var(--accent-ink)}
+.btn-soft:hover{background:var(--accent-soft-2)}
+
+.content{padding:30px;max-width:1180px;width:100%;margin:0 auto;flex:1}
+.page-head{margin-bottom:26px}
+.page-head h1{font-size:26px;font-weight:600;letter-spacing:-.02em}
+.page-head p{color:var(--muted);font-size:14px;margin-top:4px}
+.eyebrow{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+
+/* ---------- filters ---------- */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.chip{
+  padding:7px 14px;border-radius:100px;font-size:13px;font-weight:500;
+  border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);
+  transition:all .15s var(--ease);
+}
+.chip:hover{border-color:var(--muted)}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ---------- vault grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;cursor:pointer;position:relative;overflow:hidden;
+  transition:transform .18s var(--ease),box-shadow .18s var(--ease),border-color .18s var(--ease);
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--line-2)}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-brand{
+  display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--ink-2);
+}
+.card-logo{
+  width:30px;height:30px;border-radius:8px;flex:none;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;
+  font-family:'Space Grotesk',sans-serif;
+}
+.award-flag{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:600;color:var(--accent-ink);
+  background:var(--accent-soft);padding:4px 9px;border-radius:100px;
+}
+.card h3{font-size:17px;font-weight:600;letter-spacing:-.01em;line-height:1.25;margin-bottom:6px}
+.card .cat{font-size:13px;color:var(--muted);margin-bottom:16px}
+.card-meta{display:flex;gap:16px;padding-top:14px;border-top:1px solid var(--line)}
+.card-meta div{font-size:12px}
+.card-meta b{display:block;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--ink)}
+.card-meta span{color:var(--muted);font-size:11px}
+
+.new-card{
+  border:1.5px dashed var(--line-2);background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  color:var(--muted);min-height:190px;font-weight:500;
+}
+.new-card:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);transform:translateY(-3px)}
+.new-card svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.7}
+
+/* ---------- detail ---------- */
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:20px;transition:color .15s}
+.back:hover{color:var(--ink)}
+.back svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:28px}
+.detail-title h1{font-size:28px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.detail-title .sub{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--muted);font-size:14px}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px}
+.field-card.full{grid-column:1/-1}
+.field-card h4{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.field-card p{color:var(--ink-2);font-size:14.5px;line-height:1.65}
+.field-card .links{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.field-card .links a{color:var(--accent-ink);font-size:14px;font-weight:500;display:inline-flex;align-items:center;gap:6px;width:max-content}
+.field-card .links a:hover{text-decoration:underline}
+.metric-row{display:flex;gap:26px;flex-wrap:wrap}
+.metric b{display:block;font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.02em}
+.metric span{font-size:12px;color:var(--muted)}
+
+/* ---------- form ---------- */
+.form{max-width:720px}
+.form-group{margin-bottom:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label.lbl{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:7px}
+label.lbl span{color:var(--muted);font-weight:400}
+.form input,.form textarea,.form select{
+  width:100%;background:var(--surface);border:1px solid var(--line-2);border-radius:10px;
+  padding:11px 14px;font-size:14.5px;color:var(--ink);outline:none;
+  transition:border-color .15s var(--ease),box-shadow .15s var(--ease);
+}
+.form textarea{resize:vertical;min-height:88px;line-height:1.6}
+.form input:focus,.form textarea:focus,.form select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.form-actions{display:flex;gap:12px;margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}
+
+/* ---------- submission generator ---------- */
+.gen-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
+.award-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.award-tab{
+  padding:10px 16px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);
+  text-align:left;transition:all .15s var(--ease);min-width:150px;
+}
+.award-tab:hover{border-color:var(--muted)}
+.award-tab.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-soft)}
+.award-tab b{display:block;font-size:14px;font-weight:600}
+.award-tab small{font-size:11px;color:var(--muted)}
+.award-tab.active small{color:var(--accent-ink)}
+.paper{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow-md);overflow:hidden;
+}
+.paper-head{
+  padding:26px 34px 20px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,var(--surface-2),var(--surface));
+}
+.paper-head .org{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.paper-head h2{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:8px 0 4px}
+.paper-head .meta{font-size:13px;color:var(--muted)}
+.paper-body{padding:28px 34px 34px}
+.doc-section{margin-bottom:24px}
+.doc-section:last-child{margin-bottom:0}
+.doc-section h3{
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent-ink);margin-bottom:8px;display:flex;align-items:center;gap:9px;
+}
+.doc-section h3::before{content:"";width:16px;height:2px;border-radius:2px;background:var(--accent)}
+.doc-section p{color:var(--ink-2);font-size:14.5px;line-height:1.72}
+.gen-cursor::after{content:"▋";color:var(--accent);animation:blink 1s steps(2) infinite;margin-left:1px}
+@keyframes blink{50%{opacity:0}}
+
+.gen-side{position:sticky;top:86px;display:flex;flex-direction:column;gap:16px}
+.side-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.side-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.side-card p{font-size:13px;color:var(--muted);margin-bottom:16px}
+.dl-list{display:flex;flex-direction:column;gap:8px}
+.dl-btn{
+  display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  padding:11px 13px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);
+  font-size:13.5px;font-weight:500;color:var(--ink-2);
+  transition:all .15s var(--ease);
+}
+.dl-btn:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}
+.dl-btn:disabled{opacity:.5;cursor:not-allowed}
+.dl-ico{width:30px;height:30px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:700;color:#fff}
+.dl-btn .chev{margin-left:auto;color:var(--muted)}
+.dl-btn:hover .chev{color:var(--accent)}
+.regen{width:100%;justify-content:center;margin-top:2px}
+
+.demo-note{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--accent-soft);border:1px solid var(--accent-soft-2);border-radius:10px;
+  padding:12px 14px;font-size:12.5px;color:var(--accent-ink);line-height:1.5;
+}
+.demo-note svg{width:16px;height:16px;flex:none;margin-top:1px;stroke:currentColor;fill:none;stroke-width:1.8}
+
+/* ---------- case study ---------- */
+.cs-wrap{max-width:860px;margin:0 auto}
+.cs{
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow-lg);
+}
+.cs-hero{position:relative;padding:56px 52px 46px;color:#fff;overflow:hidden}
+.cs-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#1C1917,#3A2418 60%,var(--accent));z-index:0}
+.cs-hero>*{position:relative;z-index:1}
+.cs-hero .kicker{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.85}
+.cs-hero h1{font-size:38px;font-weight:600;letter-spacing:-.02em;line-height:1.08;margin:14px 0 12px;max-width:15ch}
+.cs-hero .lead{font-size:16px;opacity:.9;max-width:52ch;line-height:1.6}
+.cs-hero .brandtag{display:inline-flex;align-items:center;gap:9px;margin-top:22px;font-size:13px;font-weight:600}
+.cs-hero .brandtag .dot{width:8px;height:8px;border-radius:50%;background:#5BE28B}
+.cs-metrics{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.cs-metric{padding:26px 30px;border-right:1px solid var(--line);text-align:center}
+.cs-metric:last-child{border-right:none}
+.cs-metric b{display:block;font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--accent-ink)}
+.cs-metric span{font-size:12px;color:var(--muted);margin-top:4px;display:block}
+.cs-body{padding:44px 52px 50px}
+.cs-block{margin-bottom:34px}
+.cs-block:last-child{margin-bottom:0}
+.cs-block h3{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.cs-block p{font-size:16px;line-height:1.75;color:var(--ink-2)}
+.cs-foot{padding:26px 52px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted)}
+
+/* ---------- media ---------- */
+.uploader{display:flex;flex-direction:column;gap:12px}
+.upload-btn{
+  display:inline-flex;align-items:center;gap:8px;width:max-content;
+  padding:10px 16px;border-radius:10px;border:1.5px dashed var(--line-2);background:var(--surface);
+  font-size:14px;font-weight:600;color:var(--ink-2);transition:all .15s var(--ease);
+}
+.upload-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.upload-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap}
+.thumb{position:relative;width:96px;height:72px;border-radius:9px;overflow:hidden;border:1px solid var(--line-2)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb-x{
+  position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;
+  background:rgba(28,25,23,.72);color:#fff;font-size:14px;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.thumb-x:hover{background:var(--accent)}
+.media-strip{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.media-shot{width:180px;height:108px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.media-shot img{width:100%;height:100%;object-fit:cover;display:block}
+.media-video{position:relative;aspect-ratio:16/9;max-width:520px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000}
+.media-video iframe{width:100%;height:100%;border:0;display:block}
+.video-link{display:inline-flex;align-items:center;gap:8px;color:var(--accent-ink);font-weight:600;font-size:14px}
+.paper-visual{width:100%;aspect-ratio:16/9;overflow:hidden;background:#000}
+.paper-visual img{width:100%;height:100%;object-fit:cover;display:block}
+.paper-vidlink{margin-top:8px;font-size:13px;color:var(--accent-ink);font-weight:500}
+.paper-vidlink a{color:var(--accent-ink)}
+.paper-vidlink a:hover{text-decoration:underline}
+.cs-hero.has-img{padding-top:64px}
+.cs-hero-img{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;opacity:.32;mix-blend-mode:luminosity}
+.cs-video{aspect-ratio:16/9;background:#000;border-bottom:1px solid var(--line)}
+.cs-video iframe{width:100%;height:100%;border:0;display:block}
+.cs-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:6px 0 34px}
+.cs-gallery img{width:100%;height:150px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;padding:12px 20px;border-radius:100px;font-size:13.5px;font-weight:500;
+  box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:all .3s var(--ease);z-index:100;
+  display:flex;align-items:center;gap:9px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{width:16px;height:16px;stroke:var(--good);fill:none;stroke-width:2.2}
+
+/* ---------- responsive ---------- */
+@media (max-width:960px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .gen-layout{grid-template-columns:1fr}
+  .gen-side{position:static}
+  .detail-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .cs-hero{padding:40px 28px}
+  .cs-body{padding:32px 28px}
+}
+@media print{
+  .sidebar,.topbar,.gen-side,.back,.award-tabs{display:none!important}
+  .content{padding:0;max-width:100%}
+  body{background:#fff}
+  .paper{box-shadow:none;border:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+      <span><b>Campaign Vault</b><small>Convex Interactive</small></span>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="vault"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>The Vault</button>
+      <button class="nav-item" data-view="form"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Log a Campaign</button>
+      <button class="nav-item" data-view="awards"><svg viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3"/></svg>Award Formats</button>
+    </nav>
+    <div class="side-foot">
+      <b>Demo build</b><br>Pre-loaded examples. Nothing is saved between sessions.
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="search" type="text" placeholder="Search campaigns, brands, categories...">
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" onclick="go('form')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Campaign</button>
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+
+<script>
+"use strict";
+
+/* ================= DATA ================= */
+var AWARDS = [
+  { id:"pda", name:"Pakistan Digital Awards", short:"PDA", org:"Pakistan Digital Awards 2026", tag:"National · Digital craft & impact",
+    sections:[
+      {key:"summary",   label:"Executive Summary"},
+      {key:"objective", label:"Campaign Objectives"},
+      {key:"insight",   label:"Insight & Strategy"},
+      {key:"execution", label:"Execution"},
+      {key:"results",   label:"Results & Impact"},
+      {key:"whyWin",    label:"Why This Should Win"}
+    ]},
+  { id:"dragons", name:"Dragons of Asia", short:"Dragons", org:"Dragons of Asia · PMAA", tag:"Regional · Marketing effectiveness",
+    sections:[
+      {key:"challenge", label:"Market Background & Challenge"},
+      {key:"objective", label:"Marketing Objectives"},
+      {key:"strategy",  label:"Strategic Approach"},
+      {key:"execution", label:"Creative Execution"},
+      {key:"results",   label:"Results & Effectiveness"},
+      {key:"impact",    label:"Business Impact"}
+    ]},
+  { id:"effie", name:"EFFIE Awards", short:"EFFIE", org:"EFFIE Awards Pakistan", tag:"Effectiveness · Results-weighted",
+    sections:[
+      {key:"challenge", label:"The Challenge"},
+      {key:"objective", label:"Objectives & KPIs"},
+      {key:"insight",   label:"The Insight"},
+      {key:"strategy",  label:"The Big Idea"},
+      {key:"execution", label:"Bringing It To Life"},
+      {key:"results",   label:"The Results"},
+      {key:"impact",    label:"Effectiveness & Efficiency"}
+    ]}
+];
+function awardById(id){ return AWARDS.filter(function(a){return a.id===id;})[0]; }
+
+var CAMPAIGNS = [
+  {
+    id:"itel-s26", brand:"itel", color:"#E11D48", name:"itel S26 Ultra Series",
+    category:"Best Digital Marketing Communication", year:"2025", winner:true,
+    metrics:[{v:"1st",l:"National award"},{v:"2 days",l:"Live shoot"},{v:"Flagship",l:"Craft, budget challenger"}],
+    assets:[{t:"Campaign film",u:"https://youtu.be/PekyYtp7OD8"}],
+    video:"https://youtu.be/PekyYtp7OD8",
+    images:["https://img.youtube.com/vi/PekyYtp7OD8/hqdefault.jpg"],
+    blocks:{
+      summary:"The itel S26 Ultra launched into the most crowded corner of the market, budget smartphones, where every brand competes on the same spec sheet. We refused to. Instead of another feature war, we built a single cinematic idea that treated an affordable phone as an aspirational object, then executed it at flagship quality on a challenger's budget. The film went on to win Best Digital Marketing Communication at the Pakistan Digital Awards, the animation department's first national win.",
+      challenge:"itel needed to launch the S26 Ultra in a category defined by price and noise. Every competitor was shouting megapixels and milliamps at the same young, value-conscious buyer. The brief was deceptively hard: make a budget phone feel desirable, and do it without a flagship budget to hide behind.",
+      objective:"Drive awareness and genuine desirability for the S26 Ultra among young, first-jobber buyers, and reposition itel from a price-first brand to one with real creative ambition. The success measure was not reach alone but whether the work made the phone feel aspirational.",
+      insight:"Young buyers in this segment do not buy specifications, they buy status. A budget phone wins the moment it makes its owner feel seen rather than sold to. So we stopped selling the phone and started selling the feeling of owning it.",
+      strategy:"A concept-led digital film that framed the S26 Ultra as a lifestyle object, not a product demo. We committed the entire campaign to one strong idea and then protected that idea through production: matching flagship visual language on a fraction of the resources, so the brand punched far above its price tier.",
+      execution:"The concept was mine, taken from paper to screen over a grueling two-day live shoot in Islamabad, then finished through an AI-assisted post pipeline that delivered flagship-grade grading, motion and finish at a fraction of conventional cost and turnaround. Every frame was directed to feel premium, so the audience met the phone as an object of desire, not a discount.",
+      results:"The campaign won Best Digital Marketing Communication at the Pakistan Digital Awards, the department's first national trophy, and carried itel's launch across its digital channels with the brand's most creatively ambitious work to date. Critically, it shifted the conversation around the phone from price to craft.",
+      impact:"Beyond the award, the work repositioned itel as a creatively credible brand and proved internally that challenger budgets can produce national-award output. It reset the ceiling for what the department attempts, and gave the client a launch asset that outperformed its production cost many times over.",
+      whyWin:"This is proof that ambition, not budget, wins. A concept-first film, executed at flagship quality on a challenger's resources, recognized at the highest national level. It is exactly the kind of resourceful, craft-led effectiveness these awards exist to celebrate."
+    }
+  },
+  {
+    id:"itel-a200", brand:"itel", color:"#E11D48", name:"itel A200+ Campaign",
+    category:"AI-Led Production · Digital Video", year:"2026", winner:false,
+    metrics:[{v:"1", l:"Person, full production"},{v:"0", l:"Camera & crew"},{v:"Regional",l:"Client pickup"}],
+    assets:[{t:"A200+ DVC",u:"https://youtu.be/MaCZO18VQXI"}],
+    video:"https://youtu.be/MaCZO18VQXI",
+    images:["https://img.youtube.com/vi/MaCZO18VQXI/hqdefault.jpg"],
+    blocks:{
+      summary:"The itel A200+ campaign is a proof of a new production model: a full, broadcast-quality DVC produced end to end by one person with an AI pipeline, no camera and no crew. The film was strong enough that itel chose to pick it up for their own channels in the Indian region: a Pakistan-made, solo-built AI film turned into a regional brand asset.",
+      challenge:"Deliver a complete DVC campaign for the A200+ with no traditional production budget, no crew, and no shoot, while still meeting the quality bar a brand needs to run the film across markets.",
+      objective:"Produce a broadcast-quality DVC that could carry itel's message beyond a single market, and demonstrate that AI production could match conventional output rather than merely approximate it.",
+      insight:"The tools had quietly crossed a threshold: one skilled operator directing an AI pipeline could now do the work of an entire production unit, but only if real craft sat in the director's chair to control art direction, pacing and sound.",
+      strategy:"Treat AI not as a shortcut but as a full production stack, directed with the same rigor as a live shoot. Every decision, from framing and rhythm to grade and audio, was authored, so the output read as an intentional film rather than a generated one.",
+      execution:"Every asset was made by me, end to end, through an AI production pipeline: no camera, no crew, no external vendors. The result was a finished, brand-ready DVC delivered on a timeline and cost structure conventional production cannot touch.",
+      results:"The DVC was received strongly in the Indian region, and itel is picking it up for their own social channels, extending a solo, Pakistan-built AI film into a regional distribution outcome, and validating the quality bar against a real brand's standards.",
+      impact:"The campaign demonstrated a radically efficient production model for the agency: near-zero marginal cost, no crew logistics, and output good enough to earn cross-border pickup. It reframes what a single creative can deliver and what the agency can offer clients on speed and price.",
+      whyWin:"One person, an AI pipeline, and a broadcast-quality DVC that a brand chose to run across a region. It is the clearest demonstration in this market of AI production delivering real, adopted business outcomes: the future of production, shipped today."
+    }
+  }
+];
+
+/* ================= HELPERS ================= */
+var toastTimer;
+function toast(msg){
+  var t=document.getElementById("toast");
+  document.getElementById("toastMsg").textContent=msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){t.classList.remove("show");},2200);
+}
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function campaignById(id){ return CAMPAIGNS.filter(function(c){return c.id===id;})[0]; }
+function initials(s){ return s.trim().slice(0,2).toUpperCase(); }
+
+/* ---- media helpers ---- */
+function ytId(url){ var m=(url||"").match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/); return m?m[1]:null; }
+/* resolve any image src to an embeddable data URL (uploads pass straight through;
+   remote images are best-effort and skip cleanly if the host blocks canvas export) */
+function imgToDataURL(src){
+  return new Promise(function(res){
+    if(!src){ res(null); return; }
+    if(src.indexOf("data:")===0){ res(src); return; }
+    var img=new Image(); img.crossOrigin="anonymous";
+    img.onload=function(){
+      try{
+        var cv=document.createElement("canvas"); cv.width=img.naturalWidth; cv.height=img.naturalHeight;
+        cv.getContext("2d").drawImage(img,0,0);
+        res(cv.toDataURL("image/jpeg",0.85));
+      }catch(e){ res(null); }
+    };
+    img.onerror=function(){ res(null); };
+    img.src=src;
+  });
+}
+var formImages=[]; /* holds uploaded data URLs while filling the form */
+function handleImgFiles(input){
+  var files=Array.prototype.slice.call(input.files||[]);
+  var pending=files.length;
+  if(!pending) return;
+  files.forEach(function(f){
+    if(f.type.indexOf("image/")!==0){ pending--; return; }
+    var r=new FileReader();
+    r.onload=function(){ formImages.push(r.result); if(--pending===0) renderThumbs(); };
+    r.onerror=function(){ if(--pending===0) renderThumbs(); };
+    r.readAsDataURL(f);
+  });
+  input.value="";
+}
+function renderThumbs(){
+  var t=document.getElementById("thumbs"); if(!t) return;
+  t.innerHTML=formImages.map(function(src,i){
+    return '<div class="thumb"><img src="'+src+'" alt=""><button type="button" class="thumb-x" onclick="formImages.splice('+i+',1);renderThumbs()">×</button></div>';
+  }).join("");
+}
+
+/* map a campaign's content blocks into a chosen award's section structure */
+function buildSubmission(campaign, award){
+  return {
+    org:award.org,
+    title:campaign.name,
+    meta:campaign.brand+" · "+campaign.category+" · "+campaign.year,
+    sections:award.sections.map(function(s){
+      var body=campaign.blocks[s.key];
+      if(!body){ /* graceful fill for keys a new campaign may not have */
+        body=campaign.blocks.summary||"";
+      }
+      return {label:s.label, body:body};
+    })
+  };
+}
+
+/* ================= ROUTER ================= */
+var state={view:"vault", campaign:null, award:"pda", filter:"all", search:""};
+
+function go(view, opts){
+  opts=opts||{};
+  state.view=view;
+  if(opts.campaign!==undefined) state.campaign=opts.campaign;
+  if(opts.award) state.award=opts.award;
+  document.querySelectorAll("#nav .nav-item").forEach(function(b){
+    b.classList.toggle("active", b.dataset.view===view);
+  });
+  window.scrollTo(0,0);
+  render();
+}
+document.getElementById("nav").addEventListener("click",function(e){
+  var b=e.target.closest(".nav-item"); if(!b) return; go(b.dataset.view);
+});
+document.getElementById("search").addEventListener("input",function(e){
+  state.search=e.target.value.toLowerCase();
+  if(state.view!=="vault") go("vault"); else renderVault();
+});
+
+function render(){
+  var c=document.getElementById("content");
+  if(state.view==="vault")      renderVault();
+  else if(state.view==="detail")  c.innerHTML=viewDetail();
+  else if(state.view==="form")    c.innerHTML=viewForm();
+  else if(state.view==="submission"){ c.innerHTML=viewSubmission(); startTyping(); }
+  else if(state.view==="casestudy") c.innerHTML=viewCaseStudy();
+  else if(state.view==="awards")    c.innerHTML=viewAwards();
+}
+
+/* ================= VAULT ================= */
+function renderVault(){
+  var c=document.getElementById("content");
+  var cats=["all"].concat(uniqueCats());
+  var list=CAMPAIGNS.filter(matchFilter);
+  c.innerHTML=
+    '<div class="page-head"><div class="eyebrow">Proposal 01 · Live demo</div>'+
+    '<h1>The Vault</h1><p>Every campaign, logged once. Generate an award submission or a client case study from any entry.</p></div>'+
+    '<div class="filters" id="filters">'+cats.map(function(cat){
+      return '<button class="chip'+(state.filter===cat?" active":"")+'" data-cat="'+esc(cat)+'">'+(cat==="all"?"All campaigns":esc(cat))+'</button>';
+    }).join("")+'</div>'+
+    '<div class="grid">'+
+      list.map(cardHTML).join("")+
+      '<button class="card new-card" onclick="go(\'form\')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Log a new campaign</button>'+
+    '</div>'+
+    (list.length===0?'<p style="color:var(--muted);margin-top:20px">No campaigns match that search.</p>':'');
+  var f=document.getElementById("filters");
+  if(f) f.addEventListener("click",function(e){
+    var b=e.target.closest(".chip"); if(!b) return;
+    state.filter=b.dataset.cat; renderVault();
+  });
+}
+function uniqueCats(){
+  var seen={},out=[];
+  CAMPAIGNS.forEach(function(c){ if(!seen[c.category]){seen[c.category]=1;out.push(c.category);} });
+  return out;
+}
+function matchFilter(c){
+  if(state.filter!=="all" && c.category!==state.filter) return false;
+  if(state.search){
+    var hay=(c.name+" "+c.brand+" "+c.category).toLowerCase();
+    if(hay.indexOf(state.search)===-1) return false;
+  }
+  return true;
+}
+function cardHTML(c){
+  return '<div class="card" onclick="go(\'detail\',{campaign:\''+c.id+'\'})">'+
+    '<div class="card-top"><div class="card-brand"><span class="card-logo" style="background:'+c.color+'">'+initials(c.brand)+'</span>'+esc(c.brand)+'</div>'+
+    (c.winner?'<span class="award-flag">🏆 Winner</span>':'<span class="award-flag" style="background:var(--surface-2);color:var(--muted)">'+esc(c.year)+'</span>')+'</div>'+
+    '<h3>'+esc(c.name)+'</h3><div class="cat">'+esc(c.category)+'</div>'+
+    '<div class="card-meta">'+c.metrics.slice(0,3).map(function(m){
+      return '<div><b>'+esc(m.v)+'</b><span>'+esc(m.l)+'</span></div>';
+    }).join("")+'</div></div>';
+}
+
+/* ================= DETAIL ================= */
+function viewDetail(){
+  var c=campaignById(state.campaign); if(!c) return "";
+  return '<button class="back" onclick="go(\'vault\')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Back to the vault</button>'+
+    '<div class="detail-head"><div class="detail-title"><h1>'+esc(c.name)+'</h1>'+
+      '<div class="sub"><span class="card-logo" style="width:24px;height:24px;font-size:11px;background:'+c.color+'">'+initials(c.brand)+'</span>'+esc(c.brand)+' · '+esc(c.category)+' · '+esc(c.year)+(c.winner?' · <span style="color:var(--accent-ink);font-weight:600">🏆 PDA Winner</span>':'')+'</div></div>'+
+      '<div class="detail-actions">'+
+        '<button class="btn btn-ghost" onclick="go(\'casestudy\',{campaign:\''+c.id+'\'})"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/></svg>Case study</button>'+
+        '<button class="btn btn-primary" onclick="go(\'submission\',{campaign:\''+c.id+'\'})"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>Generate submission</button>'+
+      '</div></div>'+
+    '<div class="detail-grid">'+
+      '<div class="field-card full"><h4>Metrics</h4><div class="metric-row">'+c.metrics.map(function(m){return '<div class="metric"><b>'+esc(m.v)+'</b><span>'+esc(m.l)+'</span></div>';}).join("")+'</div></div>'+
+      '<div class="field-card"><h4>Objective</h4><p>'+esc(c.blocks.objective)+'</p></div>'+
+      '<div class="field-card"><h4>Strategy &amp; Insight</h4><p>'+esc(c.blocks.strategy||c.blocks.insight)+'</p></div>'+
+      '<div class="field-card"><h4>Execution</h4><p>'+esc(c.blocks.execution)+'</p></div>'+
+      '<div class="field-card"><h4>Results &amp; Response</h4><p>'+esc(c.blocks.results)+'</p></div>'+
+      mediaCardHTML(c)+
+    '</div>';
+}
+
+function mediaCardHTML(c){
+  var imgs=(c.images||[]);
+  var vid=c.video||"";
+  if(!imgs.length && !vid && !(c.assets||[]).length) return "";
+  var out='<div class="field-card full"><h4>Media &amp; assets</h4>';
+  if(imgs.length){
+    out+='<div class="media-strip">'+imgs.map(function(src){return '<div class="media-shot"><img src="'+src+'" alt="" loading="lazy"></div>';}).join("")+'</div>';
+  }
+  if(vid){
+    var id=ytId(vid);
+    out+='<div class="media-video">'+(id?'<iframe src="https://www.youtube.com/embed/'+id+'" title="Campaign video" allow="fullscreen" allowfullscreen></iframe>':'<a class="video-link" href="'+vid+'" target="_blank" rel="noopener">▶ Watch the video</a>')+'</div>';
+  }
+  if((c.assets||[]).length){
+    out+='<div class="links" style="margin-top:14px">'+c.assets.map(function(a){return '<a href="'+a.u+'" target="_blank" rel="noopener">↗ '+esc(a.t)+'</a>';}).join("")+'</div>';
+  }
+  return out+'</div>';
+}
+
+/* ================= FORM ================= */
+function viewForm(){
+  formImages=[]; /* fresh media state each time the form opens */
+  return '<button class="back" onclick="go(\'vault\')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Back to the vault</button>'+
+    '<div class="page-head"><div class="eyebrow">New entry</div><h1>Log a campaign</h1><p>Fill the facts once. The vault turns them into award submissions and case studies on demand.</p></div>'+
+    '<form class="form" id="campForm" onsubmit="return submitForm(event)">'+
+      '<div class="form-row">'+
+        '<div class="form-group"><label class="lbl">Brand</label><input name="brand" required placeholder="e.g. itel"></div>'+
+        '<div class="form-group"><label class="lbl">Campaign name</label><input name="name" required placeholder="e.g. A200+ Launch DVC"></div>'+
+      '</div>'+
+      '<div class="form-group"><label class="lbl">Category <span>· the award category you\'re targeting</span></label><input name="category" required placeholder="e.g. AI-Led Production"></div>'+
+      '<div class="form-group"><label class="lbl">Objective <span>· what the campaign set out to do</span></label><textarea name="objective" required placeholder="The goal, the audience, the success measure..."></textarea></div>'+
+      '<div class="form-group"><label class="lbl">Strategy &amp; rationale <span>· the thinking behind it</span></label><textarea name="strategy" required placeholder="The insight and the creative approach..."></textarea></div>'+
+      '<div class="form-group"><label class="lbl">Execution <span>· how it was made</span></label><textarea name="execution" required placeholder="Production approach, craft, what made it different..."></textarea></div>'+
+      '<div class="form-group"><label class="lbl">Results &amp; audience response <span>· the numbers judges weight most</span></label><textarea name="results" required placeholder="Metrics, reach, awards, client/audience reaction..."></textarea></div>'+
+      '<div class="form-group"><label class="lbl">Video link <span>· YouTube / Vimeo (optional). Plays in the case study, appears as a link + still in submissions.</span></label><input name="video" placeholder="https://youtu.be/..."></div>'+
+      '<div class="form-group"><label class="lbl">Images <span>· stills, key visuals (optional). Embedded into every export.</span></label>'+
+        '<input type="file" id="imgInput" accept="image/*" multiple hidden onchange="handleImgFiles(this)">'+
+        '<div class="uploader"><button type="button" class="upload-btn" onclick="document.getElementById(\'imgInput\').click()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add images</button><div class="thumbs" id="thumbs"></div></div>'+
+      '</div>'+
+      '<div class="form-actions"><button type="submit" class="btn btn-primary"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Save to vault</button>'+
+        '<button type="button" class="btn btn-ghost" onclick="go(\'vault\')">Cancel</button></div>'+
+    '</form>';
+}
+function submitForm(e){
+  e.preventDefault();
+  var f=e.target, g=function(n){return f.elements[n].value.trim();};
+  var id="new-"+Date.now();
+  var strat=g("strategy"), res=g("results");
+  var camp={
+    id:id, brand:g("brand"), color:"#E8551F", name:g("name"), category:g("category"),
+    year:"2026", winner:false,
+    metrics:[{v:"New",l:"Logged just now"},{v:g("brand"),l:"Brand"},{v:"Demo",l:"Session entry"}],
+    assets:g("video")?[{t:"Campaign video",u:g("video")}]:[],
+    video:g("video")||"",
+    images:formImages.slice(),
+    blocks:{
+      summary:g("objective"),
+      challenge:g("objective"),
+      objective:g("objective"),
+      insight:strat, strategy:strat,
+      execution:g("execution"),
+      results:res, impact:res,
+      whyWin:"This campaign delivered "+res.slice(0,120)+(res.length>120?"…":"")
+    },
+    isNew:true
+  };
+  CAMPAIGNS.unshift(camp);
+  toast("Campaign saved to the vault");
+  go("detail",{campaign:id});
+  return false;
+}
+
+/* ================= SUBMISSION ================= */
+function viewSubmission(){
+  var c=campaignById(state.campaign); if(!c) return "";
+  var award=awardById(state.award);
+  return '<button class="back" onclick="go(\'detail\',{campaign:\''+c.id+'\'})"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Back to '+esc(c.name)+'</button>'+
+    '<div class="page-head"><div class="eyebrow">Award submission</div><h1>'+esc(c.name)+'</h1><p>Pick an award. The vault formats the campaign into that award\'s exact submission structure.</p></div>'+
+    '<div class="award-tabs">'+AWARDS.map(function(a){
+      return '<button class="award-tab'+(a.id===state.award?" active":"")+'" onclick="go(\'submission\',{campaign:\''+c.id+'\',award:\''+a.id+'\'})"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></button>';
+    }).join("")+'</div>'+
+    '<div class="gen-layout"><div class="paper" id="paper">'+
+      ((c.images&&c.images.length)?'<div class="paper-visual"><img src="'+c.images[0]+'" alt=""></div>':'')+
+      '<div class="paper-head"><div class="org">'+esc(award.org)+'</div><h2>'+esc(c.name)+'</h2><div class="meta">'+esc(c.brand+" · "+c.category+" · "+c.year)+'</div>'+
+        (c.video?'<div class="paper-vidlink">▶ Film: <a href="'+c.video+'" target="_blank" rel="noopener">'+esc(c.video)+'</a></div>':'')+'</div>'+
+      '<div class="paper-body" id="docBody"></div>'+
+    '</div>'+
+    '<div class="gen-side">'+
+      '<div class="side-card"><h4>Download submission</h4><p>Formatted for '+esc(award.short)+', ready to send or drop into a deck.</p>'+
+        '<div class="dl-list">'+
+          '<button class="dl-btn" id="dlPdf" onclick="downloadPDF()"><span class="dl-ico" style="background:#DC2626">PDF</span>PDF document<span class="chev">↓</span></button>'+
+          '<button class="dl-btn" id="dlDoc" onclick="downloadWord()"><span class="dl-ico" style="background:#2563EB">DOC</span>Word document<span class="chev">↓</span></button>'+
+          '<button class="dl-btn" id="dlPpt" onclick="downloadPPTX()"><span class="dl-ico" style="background:#D97706">PPT</span>PowerPoint deck<span class="chev">↓</span></button>'+
+          '<button class="dl-btn" id="dlCopy" onclick="copyText()"><span class="dl-ico" style="background:#57534E">TXT</span>Copy all text<span class="chev">⧉</span></button>'+
+        '</div>'+
+        '<button class="btn btn-soft regen" onclick="startTyping()" style="margin-top:14px"><svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Regenerate</button>'+
+      '</div>'+
+      '<div class="demo-note"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span><b>Demo mode.</b> Outputs are pre-written for the loaded examples. Approve the concept and we connect live AI generation for any campaign.</span></div>'+
+    '</div></div>';
+}
+
+var typingTimer=null;
+function startTyping(){
+  var c=campaignById(state.campaign); var award=awardById(state.award);
+  var sub=buildSubmission(c,award);
+  var body=document.getElementById("docBody");
+  if(!body) return;
+  clearTimeout(typingTimer);
+  window.__sub=sub; /* for exporters */
+  /* resolve a key visual for the exports (uploads embed directly; remote best-effort) */
+  window.__subImg=null;
+  window.__subVideo=c.video||"";
+  if(c.images && c.images.length){ imgToDataURL(c.images[0]).then(function(d){ window.__subImg=d; }); }
+  /* build all sections, reveal progressively */
+  body.innerHTML=sub.sections.map(function(s,i){
+    return '<div class="doc-section"><h3>'+esc(s.label)+'</h3><p id="sec'+i+'"></p></div>';
+  }).join("");
+  var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){
+    sub.sections.forEach(function(s,i){ document.getElementById("sec"+i).textContent=s.body; });
+    setDlEnabled(true); return;
+  }
+  setDlEnabled(false);
+  var si=0, ci=0;
+  function tick(){
+    if(si>=sub.sections.length){ setDlEnabled(true); clearCursor(); return; }
+    var el=document.getElementById("sec"+si);
+    var full=sub.sections[si].body;
+    el.classList.add("gen-cursor");
+    ci+=Math.max(2,Math.round(full.length/90)); /* speed scales so every section takes ~similar time */
+    el.textContent=full.slice(0,ci);
+    if(ci>=full.length){ el.classList.remove("gen-cursor"); si++; ci=0;
+      var elx=document.getElementById("sec"+si); if(elx) elx.scrollIntoView({block:"nearest"});
+    }
+    typingTimer=setTimeout(tick, 16);
+  }
+  tick();
+}
+function clearCursor(){ document.querySelectorAll(".gen-cursor").forEach(function(e){e.classList.remove("gen-cursor");}); }
+function setDlEnabled(on){
+  ["dlPdf","dlDoc","dlPpt","dlCopy"].forEach(function(id){ var b=document.getElementById(id); if(b) b.disabled=!on; });
+}
+
+/* ================= EXPORTERS ================= */
+function fileStem(){
+  var c=campaignById(state.campaign), a=awardById(state.award);
+  return (c.name+" - "+a.short+" submission").replace(/[^\w\- ]/g,"").replace(/\s+/g,"-");
+}
+function downloadPDF(){
+  var sub=window.__sub; if(!sub) return;
+  var jsPDF=window.jspdf.jsPDF;
+  var doc=new jsPDF({unit:"pt",format:"a4"});
+  var W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight();
+  var M=56, y=64, maxW=W-M*2;
+  doc.setFont("helvetica","bold"); doc.setTextColor(232,85,31); doc.setFontSize(9);
+  doc.text(sub.org.toUpperCase(), M, y); y+=22;
+  doc.setTextColor(28,25,23); doc.setFontSize(20); doc.text(sub.title, M, y); y+=18;
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(120,113,108);
+  doc.text(sub.meta, M, y); y+=14;
+  if(window.__subVideo){ doc.setTextColor(185,63,18); doc.text("Film: "+window.__subVideo, M, y); y+=14; doc.setTextColor(120,113,108); }
+  doc.setDrawColor(230,228,225); doc.line(M,y,W-M,y); y+=20;
+  if(window.__subImg){
+    try{
+      var props=doc.getImageProperties(window.__subImg);
+      var iw=maxW, ih=iw*props.height/props.width;
+      if(ih>230){ ih=230; iw=ih*props.width/props.height; }
+      doc.addImage(window.__subImg,"JPEG",M,y,iw,ih); y+=ih+22;
+    }catch(e){}
+  }
+  sub.sections.forEach(function(s){
+    if(y>H-90){ doc.addPage(); y=64; }
+    doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(185,63,18);
+    doc.text(s.label.toUpperCase(), M, y); y+=15;
+    doc.setFont("helvetica","normal"); doc.setFontSize(11); doc.setTextColor(40,37,34);
+    var lines=doc.splitTextToSize(s.body, maxW);
+    lines.forEach(function(ln){
+      if(y>H-64){ doc.addPage(); y=64; }
+      doc.text(ln, M, y); y+=16;
+    });
+    y+=14;
+  });
+  doc.save(fileStem()+".pdf");
+  toast("PDF downloaded");
+}
+function downloadWord(){
+  var sub=window.__sub; if(!sub) return;
+  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>'+
+    'body{font-family:Calibri,Arial,sans-serif;color:#1C1917;font-size:11pt;line-height:1.5} '+
+    'h1{font-size:20pt;margin:0 0 4pt} .org{color:#E8551F;font-size:9pt;letter-spacing:2px;font-weight:bold} '+
+    '.meta{color:#78716C;font-size:10pt;margin-bottom:10pt} h2{color:#B93F12;font-size:11pt;letter-spacing:1px;margin:16pt 0 4pt} p{margin:0 0 8pt}'+
+    '</style></head><body>'+
+    '<div class="org">'+esc(sub.org.toUpperCase())+'</div><h1>'+esc(sub.title)+'</h1><div class="meta">'+esc(sub.meta)+'</div>'+
+    (window.__subVideo?'<p style="color:#B93F12"><b>Film:</b> '+esc(window.__subVideo)+'</p>':'')+
+    (window.__subImg?'<p><img src="'+window.__subImg+'" style="width:100%;max-width:560px"/></p>':'')+
+    sub.sections.map(function(s){return '<h2>'+esc(s.label.toUpperCase())+'</h2><p>'+esc(s.body)+'</p>';}).join("")+
+    '</body></html>';
+  var blob=new Blob(['﻿',html],{type:"application/msword"});
+  triggerDownload(blob, fileStem()+".doc");
+  toast("Word document downloaded");
+}
+function downloadPPTX(){
+  var sub=window.__sub; if(!sub) return;
+  if(typeof PptxGenJS==="undefined"){ toast("PowerPoint library still loading, try again"); return; }
+  var p=new PptxGenJS();
+  p.defineLayout({name:"W",width:10,height:5.625}); p.layout="W";
+  /* title slide */
+  var t=p.addSlide(); t.background={color:"1C1917"};
+  if(window.__subImg){ try{ t.addImage({data:window.__subImg,x:0,y:0,w:10,h:5.625,sizing:{type:"cover",w:10,h:5.625}}); t.addShape(p.ShapeType.rect,{x:0,y:0,w:10,h:5.625,fill:{color:"1C1917",transparency:38}}); }catch(e){} }
+  t.addText(sub.org.toUpperCase(),{x:0.6,y:1.7,w:8.8,fontSize:12,color:"F5893F",bold:true,charSpacing:2,fontFace:"Arial"});
+  t.addText(sub.title,{x:0.6,y:2.1,w:8.8,fontSize:34,color:"FFFFFF",bold:true,fontFace:"Arial"});
+  t.addText(sub.meta+(window.__subVideo?"   ·   Film: "+window.__subVideo:""),{x:0.6,y:3.1,w:8.8,fontSize:13,color:"D8D2CC",fontFace:"Arial"});
+  /* one slide per section */
+  sub.sections.forEach(function(s){
+    var sl=p.addSlide(); sl.background={color:"FFFFFF"};
+    sl.addText(s.label.toUpperCase(),{x:0.6,y:0.5,w:8.8,fontSize:14,color:"B93F12",bold:true,charSpacing:1,fontFace:"Arial"});
+    sl.addShape(p.ShapeType.line,{x:0.6,y:0.95,w:1.0,h:0,line:{color:"E8551F",width:2}});
+    sl.addText(s.body,{x:0.6,y:1.2,w:8.8,h:3.8,fontSize:15,color:"333333",fontFace:"Arial",lineSpacingMultiple:1.25,valign:"top"});
+  });
+  p.writeFile({fileName:fileStem()+".pptx"}).then(function(){ toast("PowerPoint downloaded"); });
+}
+function copyText(){
+  var sub=window.__sub; if(!sub) return;
+  var txt=sub.org.toUpperCase()+"\n"+sub.title+"\n"+sub.meta+"\n\n"+
+    sub.sections.map(function(s){return s.label.toUpperCase()+"\n"+s.body;}).join("\n\n");
+  navigator.clipboard.writeText(txt).then(function(){toast("Submission copied to clipboard");},function(){toast("Copy failed");});
+}
+function triggerDownload(blob,name){
+  var url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},100);
+}
+
+/* ================= CASE STUDY ================= */
+function viewCaseStudy(){
+  var c=campaignById(state.campaign); if(!c) return "";
+  return '<button class="back" onclick="go(\'detail\',{campaign:\''+c.id+'\'})"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Back to '+esc(c.name)+'</button>'+
+    '<div class="page-head" style="display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap">'+
+      '<div><div class="eyebrow">Client-facing</div><h1>Case study</h1><p>A shareable, white-labellable page. Send it to a prospect or export it.</p></div>'+
+      '<div class="detail-actions">'+
+        '<button class="btn btn-ghost" onclick="window.print()"><svg viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4v-6h16v6h-2M6 14h12v8H6z"/></svg>Print / PDF</button>'+
+        '<button class="btn btn-primary" onclick="downloadCaseStudy()"><svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>Download page</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="cs-wrap" id="csWrap">'+caseStudyHTML(c)+'</div>';
+}
+function caseStudyHTML(c){
+  var hero=(c.images&&c.images.length)?c.images[0]:"";
+  var vid=ytId(c.video||"");
+  return '<div class="cs"><div class="cs-hero'+(hero?' has-img':'')+'">'+
+    (hero?'<div class="cs-hero-img" style="background-image:url('+"'"+hero+"'"+')"></div>':'')+
+    '<div class="kicker">'+esc(c.brand)+' · Case Study</div>'+
+    '<h1>'+esc(c.name)+'</h1><p class="lead">'+esc(c.blocks.summary)+'</p>'+
+    '<div class="brandtag"><span class="dot"></span>Produced by Convex Interactive'+(c.winner?' · 🏆 Pakistan Digital Award Winner':'')+'</div></div>'+
+    '<div class="cs-metrics">'+c.metrics.slice(0,3).map(function(m){return '<div class="cs-metric"><b>'+esc(m.v)+'</b><span>'+esc(m.l)+'</span></div>';}).join("")+'</div>'+
+    (vid?'<div class="cs-video"><iframe src="https://www.youtube.com/embed/'+vid+'" title="Campaign film" allow="fullscreen" allowfullscreen></iframe></div>':'')+
+    '<div class="cs-body">'+
+      '<div class="cs-block"><h3>The Challenge</h3><p>'+esc(c.blocks.challenge)+'</p></div>'+
+      '<div class="cs-block"><h3>The Idea</h3><p>'+esc(c.blocks.strategy||c.blocks.insight)+'</p></div>'+
+      '<div class="cs-block"><h3>The Work</h3><p>'+esc(c.blocks.execution)+'</p></div>'+
+      (c.images&&c.images.length>1?'<div class="cs-gallery">'+c.images.slice(1,4).map(function(src){return '<img src="'+src+'" alt="">';}).join("")+'</div>':'')+
+      '<div class="cs-block"><h3>The Impact</h3><p>'+esc(c.blocks.impact||c.blocks.results)+'</p></div>'+
+    '</div>'+
+    '<div class="cs-foot"><span>Convex Interactive · Karachi</span><span>'+esc(c.year)+'</span></div></div>';
+}
+function downloadCaseStudy(){
+  var c=campaignById(state.campaign);
+  var css=document.querySelector("style").innerHTML;
+  var html='<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>'+esc(c.name)+' · Case Study</title>'+
+    '<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">'+
+    '<style>'+css+'body{background:var(--bg);padding:40px 20px}</style></head><body>'+
+    '<div class="cs-wrap">'+caseStudyHTML(c)+'</div></body></html>';
+  triggerDownload(new Blob([html],{type:"text/html"}), (c.name.replace(/[^\w\- ]/g,"").replace(/\s+/g,"-"))+"-case-study.html");
+  toast("Case study page downloaded");
+}
+
+/* ================= AWARDS INFO ================= */
+function viewAwards(){
+  return '<div class="page-head"><div class="eyebrow">Reference</div><h1>Award formats</h1><p>Each award has its own submission structure. Selecting one reshapes the generated document to match.</p></div>'+
+    '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))">'+
+    AWARDS.map(function(a){
+      return '<div class="field-card"><h4>'+esc(a.short)+'</h4><h3 style="font-size:18px;font-weight:600;margin:2px 0 4px">'+esc(a.name)+'</h3>'+
+        '<p style="color:var(--muted);font-size:13px;margin-bottom:14px">'+esc(a.tag)+'</p>'+
+        '<div style="display:flex;flex-direction:column;gap:7px">'+a.sections.map(function(s,i){
+          return '<div style="display:flex;gap:10px;align-items:center;font-size:13.5px;color:var(--ink-2)"><span class="mono" style="color:var(--accent);font-weight:600;font-size:12px;width:20px">'+(i+1<10?"0":"")+(i+1)+'</span>'+esc(s.label)+'</div>';
+        }).join("")+'</div></div>';
+    }).join("")+'</div>';
+}
+
+/* boot */
+render();
+</script>
+</body>
+</html>
