@@ -303,7 +303,9 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
 }
 /* ---------- animated blur digits (lever readouts) ---------- */
 .an-num{font-variant-numeric:tabular-nums}
-.an-slot{position:relative;display:inline-block;width:1ch;overflow:hidden}
+/* clip-path, not overflow:hidden: overflow moves an inline-block's baseline
+   to its bottom edge, which threw the digits out of line with the text */
+.an-slot{position:relative;display:inline-block;width:1ch;clip-path:inset(0)}
 .an-ch{
   display:inline-block;will-change:transform,filter;
   transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .22s ease,filter .22s ease;
