@@ -153,7 +153,9 @@ h1.display{font-size:clamp(36px,5.6vw,64px);margin:22px 0 10px}
 /* ---------- unlocked content ---------- */
 .ladder{
   display:grid;grid-template-columns:repeat(4,1fr);
-  gap:clamp(10px,2vw,22px);align-items:end;
+  /* start, not end: a wrapped label (MARKET OFFER on phones) must hang below,
+     not push its bar and value out of line with the other rungs */
+  gap:clamp(10px,2vw,22px);align-items:start;
   margin:10px 0 20px;
 }
 .rung{text-align:center}
