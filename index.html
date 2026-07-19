@@ -379,39 +379,39 @@ section{position:relative}
 /* progressive edge blur: stacked backdrop-filter layers, each masked to a band,
    so logos smear out of focus toward the edges instead of only fading */
 .mq-blur{
-  position:absolute;top:0;bottom:0;width:clamp(70px,11vw,170px);
+  position:absolute;top:0;bottom:0;width:clamp(90px,14vw,220px);
   pointer-events:none;z-index:2;
 }
 .mq-blur-l{left:0}
 .mq-blur-r{right:0}
 .mq-blur i{position:absolute;inset:0;display:block}
 .mq-blur-l i:nth-child(1){
-  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
   -webkit-mask-image:linear-gradient(to right,#000 0,#000 60%,transparent 100%);
   mask-image:linear-gradient(to right,#000 0,#000 60%,transparent 100%);
 }
 .mq-blur-l i:nth-child(2){
-  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   -webkit-mask-image:linear-gradient(to right,#000 0,#000 38%,transparent 72%);
   mask-image:linear-gradient(to right,#000 0,#000 38%,transparent 72%);
 }
 .mq-blur-l i:nth-child(3){
-  -webkit-backdrop-filter:blur(11px);backdrop-filter:blur(11px);
+  -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
   -webkit-mask-image:linear-gradient(to right,#000 0,#000 18%,transparent 46%);
   mask-image:linear-gradient(to right,#000 0,#000 18%,transparent 46%);
 }
 .mq-blur-r i:nth-child(1){
-  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
   -webkit-mask-image:linear-gradient(to left,#000 0,#000 60%,transparent 100%);
   mask-image:linear-gradient(to left,#000 0,#000 60%,transparent 100%);
 }
 .mq-blur-r i:nth-child(2){
-  -webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   -webkit-mask-image:linear-gradient(to left,#000 0,#000 38%,transparent 72%);
   mask-image:linear-gradient(to left,#000 0,#000 38%,transparent 72%);
 }
 .mq-blur-r i:nth-child(3){
-  -webkit-backdrop-filter:blur(11px);backdrop-filter:blur(11px);
+  -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
   -webkit-mask-image:linear-gradient(to left,#000 0,#000 18%,transparent 46%);
   mask-image:linear-gradient(to left,#000 0,#000 18%,transparent 46%);
 }
