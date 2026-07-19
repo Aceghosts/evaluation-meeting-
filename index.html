@@ -735,7 +735,6 @@ section{position:relative}
 }
 .bcard{
   position:relative;overflow:hidden;
-  contain:layout paint;
   display:flex;flex-direction:column;justify-content:space-between;gap:42px;
   min-height:200px;
   border-radius:20px;
@@ -746,6 +745,11 @@ section{position:relative}
   padding:28px 30px;
   transition:transform .3s var(--ease-soft),border-color .3s var(--ease-soft),box-shadow .3s var(--ease-soft);
   will-change:transform;
+}
+/* containment stays desktop-only: on some Android GPUs contain:paint plus
+   backdrop-filter offsets the frosted layer from the card box */
+@media (hover:hover) and (pointer:fine){
+  .bcard{contain:layout paint}
 }
 /* glass sheen, same recipe as the player cards in The Work */
 .bcard::after{
