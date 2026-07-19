@@ -535,6 +535,51 @@ section{position:relative}
   font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);
 }
+/* multi-reel picker + vertical player (override the 16:9 frame) */
+.lb-frame.is-reels,.lb-frame.is-reel-player{
+  aspect-ratio:auto;border:none;background:transparent;overflow:visible;border-radius:0;
+}
+.reel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.reel-opt{
+  display:flex;flex-direction:column;gap:11px;cursor:pointer;background:none;border:none;padding:0;
+  font-family:inherit;
+}
+.reel-thumb{
+  position:relative;display:block;aspect-ratio:9/16;border-radius:16px;overflow:hidden;
+  background-size:cover;background-position:center;
+  border:1px solid rgba(244,237,228,.14);
+  transition:border-color .25s var(--ease-soft),transform .25s var(--ease-soft);
+}
+.reel-thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(11,9,8,.55),transparent 55%)}
+.reel-opt:hover .reel-thumb{border-color:rgba(255,179,92,.55);transform:translateY(-3px)}
+.reel-play{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;
+  width:46px;height:46px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:#1A0C05;
+  background:linear-gradient(120deg,var(--ember),var(--amber));box-shadow:0 6px 20px rgba(255,90,31,.4);
+}
+.reel-lbl{
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;color:var(--cream);text-align:center;
+}
+.reel-back{
+  display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;
+  font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);background:none;border:none;cursor:pointer;transition:color .2s var(--ease-soft);
+}
+.reel-back:hover{color:var(--cream)}
+.reel-frame{
+  width:min(340px,74vw);margin:0 auto;aspect-ratio:9/16;
+  border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#000;
+}
+.reel-frame iframe{width:100%;height:100%;border:0;display:block}
+/* reel-count badge on the card */
+.g-reelbadge{
+  position:absolute;top:22px;right:22px;z-index:2;
+  font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:.1em;
+  color:var(--cream);background:rgba(11,9,8,.6);border:1px solid rgba(244,237,228,.22);
+  padding:5px 10px;border-radius:100px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+@media (max-width:620px){.reel-grid{grid-template-columns:repeat(2,1fr)}}
 /* ember gradient backdrops so the dark sections have depth, not flat black */
 .about,.journey,.nextyear{position:relative}
 .about::before,.journey::before,.nextyear::before{
@@ -964,12 +1009,12 @@ footer{
       </div>
       <div class="entry rv">
         <div class="when">Next Year · The Offer</div>
-        <h3>The Multiplier <span>· Five Forward Proposals</span></h3>
+        <h3>The Multiplier <span>· Six Forward Proposals</span></h3>
         <p>A campaign vault with auto-generated award submissions. Concave V2, fully deployed.
         Custom AI pitch pages for every high-value prospect. An on-camera AI series for Convex's
         social channels. A structured AI training program for staff. Efficiency and independence:
         every tool either compresses time or removes a dependency.</p>
-        <div class="chips"><i>Campaign Vault</i><i>Concave V2</i><i>AI Pitch Pages</i><i>AI Series</i><i>Training Program</i></div>
+        <div class="chips"><i>Campaign Vault</i><i>Concave V2</i><i>AI Pitch Pages</i><i>AI Series</i><i>Training Program</i><i>ShotCaller</i></div>
       </div>
     </div>
   </div>
@@ -979,7 +1024,7 @@ footer{
 <section class="nextyear" id="next">
   <div class="wrap">
     <div class="eyebrow rv">Next Year</div>
-    <h2 class="display rv">Five proposals, <em class="grad-text">on the table</em>.</h2>
+    <h2 class="display rv">Six proposals, <em class="grad-text">on the table</em>.</h2>
     <div class="bento">
       <div class="bcard wide rv">
         <p>Every completed campaign gets logged: brief, objective, creative rationale, execution,
@@ -1013,6 +1058,15 @@ footer{
         <h3><small>Proposal 05</small>Internal AI Training Program</h3>
         <span class="go">↗</span>
       </div>
+      <a class="bcard wide rv" href="shotcaller/" target="_blank" rel="noopener">
+        <p>Every AI film starts with a prompt, and imprecise prompts burn credits and hours. ShotCaller
+        turns a script into paste-ready, broadcast-precise prompts with the camera language already
+        dialled in, so the whole team generates at a director's level instead of guessing. It learns
+        each producer's taste over time and makes the Higgsfield license go further. A working demo is
+        live inside.</p>
+        <h3><small>Proposal 06 · Live demo</small>ShotCaller, the Prompt Studio</h3>
+        <span class="go">↗</span>
+      </a>
     </div>
   </div>
 </section>
@@ -1282,8 +1336,16 @@ if (!reduce) {
 var PROJECTS = [
   { t:"PSO Pak Gas",        c:"Animated Film",         f:"film",   g:"linear-gradient(150deg,#FF5A1F,#7A2408)", l:"P",
     d:"The animated film that put the department on the national stage.", v:"" },
-  { t:"itel S26 Ultra",     c:"Best Digital Comms 🏆", f:"award",  g:"linear-gradient(150deg,#FFB35C,#FF5A1F)", l:"S",
-    d:"National award winner: my concept, shot over two days in Islamabad.", v:"https://youtu.be/PekyYtp7OD8" },
+  { t:"itel Nigeria",       c:"AI DVC · Nigeria",      f:"film",   g:"linear-gradient(150deg,#FFB35C,#FF5A1F)", l:"N",
+    d:"itel's Nigeria-market DVC, produced end to end with an AI-first pipeline.", v:"https://youtu.be/PekyYtp7OD8" },
+  { t:"itel S26 Ultra",     c:"Best Digital Comms 🏆", f:"award",  g:"linear-gradient(150deg,#FFB35C,#FF5A1F)", l:"S", v:"",
+    d:"National award winner. My concept, executed as a full launch campaign. Four reels inside.",
+    vlist:[
+      {label:"Launch Reel",   url:"https://www.youtube.com/shorts/zYdANOdUdFQ"},
+      {label:"All-Day Power", url:"https://www.youtube.com/shorts/MyyzUjJgXOU"},
+      {label:"Design Reel",   url:"https://www.youtube.com/shorts/bsXbizF7AB0"},
+      {label:"AI Feature",    url:"https://www.youtube.com/shorts/bo_l_FqRUpQ"}
+    ] },
   { t:"itel A200+",         c:"Solo AI DVC",           f:"film",   g:"linear-gradient(150deg,#FF6E31,#3A1105)", l:"A",
     d:"Produced solo, every asset AI-made. Loved in India, picked up for itel's socials.", v:"https://youtu.be/MaCZO18VQXI" },
   { t:"PSO Journey",        c:"72h · Full AI",         f:"film",   g:"linear-gradient(150deg,#E8863A,#3D1204)", l:"J",
@@ -1297,7 +1359,15 @@ var PROJECTS = [
   { t:"Krone DVC Series",   c:"Cinematic Teasers",     f:"film",   g:"linear-gradient(150deg,#8A2E0C,#160805)", l:"K",
     d:"Moody, cinematic fragrance teasers made with Kling AI.", v:"https://youtube.com/shorts/SX1Cxiu7-Lg" },
   { t:"PSO MD Farewell",    c:"One Photo, One Film",   f:"film",   g:"linear-gradient(150deg,#FFA34E,#93300E)", l:"F",
-    d:"One photograph turned into a cinematic boardroom tribute.", v:"https://youtu.be/QMEF1p7SC0w" }
+    d:"One photograph turned into a cinematic boardroom tribute.", v:"https://youtu.be/QMEF1p7SC0w" },
+  { t:"JS Investment",      c:"Investment DVC",        f:"film",   g:"linear-gradient(150deg,#D98C2A,#3A1E04)", l:"J",
+    d:"A polished investment brand DVC, produced with an AI-first pipeline.", v:"https://youtu.be/VrAfVgThe8A" },
+  { t:"Levoplant",          c:"Product DVC",           f:"film",   g:"linear-gradient(150deg,#C24A1F,#1E0A04)", l:"L",
+    d:"A product DVC for Levoplant, made end to end with AI.", v:"https://youtu.be/g1okY-h5tBU" },
+  { t:"Indus Cloud",        c:"Brand DVC",             f:"film",   g:"linear-gradient(150deg,#E8863A,#2A1204)", l:"I",
+    d:"A brand DVC for Indus Cloud, produced AI-first.", v:"https://youtu.be/xX4wHEA0aE0" },
+  { t:"Capri Deo Female",   c:"Zero Camera",           f:"film",   g:"linear-gradient(150deg,#D96A28,#2A0E04)", l:"C",
+    d:"The female counterpart to the Capri Deo campaign. Zero camera, every visual AI-generated.", v:"https://youtu.be/4PthL0ZKfoQ" }
 ];
 
 /* ================= SCROLL-DRIVEN PLAYER CYLINDER ================= */
@@ -1305,17 +1375,19 @@ var PROJECTS = [
    The section pins while scrolling rotates the ring one full revolution,
    then releases into the next section. */
 var scene = document.getElementById("scene");
-var CYL = PROJECTS.filter(function(p){ return p.v || p.show; });
+var CYL = PROJECTS.filter(function(p){ return p.v || p.show || (p.vlist && p.vlist.length); });
 var gcards = [];
 CYL.forEach(function(p, i){
-  var yt = p.v.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/);
+  var artUrl = p.v || (p.vlist && p.vlist[0] ? p.vlist[0].url : "");
+  var yt = artUrl.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/);
   var card = document.createElement("div");
   card.className = "gcard";
   var art = yt
     ? '<span class="g-art" style="background-image:url(https://img.youtube.com/vi/' + yt[1] + '/hq720.jpg),url(https://img.youtube.com/vi/' + yt[1] + '/mqdefault.jpg),' + p.g + '"></span>'
     : '<span class="g-art" style="background:' + p.g + '"></span>';
+  var reelBadge = (p.vlist && p.vlist.length) ? '<span class="g-reelbadge">▣ ' + p.vlist.length + ' reels</span>' : '';
   card.innerHTML =
-    art +
+    art + reelBadge +
     '<span class="g-tt"><b>' + p.t + '</b><i>' + p.d + '</i></span>';
   card.addEventListener("click", function(){
     if (didSpin) return;
@@ -1323,7 +1395,7 @@ CYL.forEach(function(p, i){
       var r = card.getBoundingClientRect();
       chipConfetti(r.left + r.width / 2, r.top + r.height / 3);
     }
-    if (p.v) openLightbox(p);
+    if (p.v || (p.vlist && p.vlist.length)) openLightbox(p);
   });
   if (finePointer && !reduce && dot) {
     card.addEventListener("mouseenter", function(){ dot.classList.add("is-hover"); });
@@ -1421,22 +1493,51 @@ var lightbox = document.getElementById("lightbox");
 var lbFrame = lightbox.querySelector(".lb-frame");
 var lbTitle = lightbox.querySelector(".lb-title");
 
+function ytIdOf(url){ var m=(url||"").match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/); return m?m[1]:null; }
+function ytEmbed(url){ var id=ytIdOf(url); return id?("https://www.youtube.com/embed/"+id+"?autoplay=1"):url; }
+function ytThumb(url){ var id=ytIdOf(url); return id?("https://img.youtube.com/vi/"+id+"/hqdefault.jpg"):""; }
+
 function openLightbox(p){
   lbTitle.textContent = p.t;
-  var v = p.v;
-  if (/\.(mp4|webm|mov)(\?|$)/i.test(v)) {
-    lbFrame.innerHTML = '<video src="' + v + '" controls autoplay playsinline></video>';
-  } else {
-    var yt = v.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]+)/);
-    if (yt) v = "https://www.youtube.com/embed/" + yt[1] + "?autoplay=1";
-    lbFrame.innerHTML = '<iframe src="' + v + '" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+  lbFrame.className = "lb-frame";
+  if (p.vlist && p.vlist.length) { renderReels(p); }
+  else {
+    var v = p.v;
+    if (/\.(mp4|webm|mov)(\?|$)/i.test(v)) {
+      lbFrame.innerHTML = '<video src="' + v + '" controls autoplay playsinline></video>';
+    } else {
+      lbFrame.innerHTML = '<iframe src="' + ytEmbed(v) + '" allow="autoplay; fullscreen" allowfullscreen></iframe>';
+    }
   }
   lightbox.classList.add("is-open");
   if (lenis) lenis.stop();
 }
+/* multi-reel picker: choose one of the campaign's reels, then play it */
+function renderReels(p){
+  reelSet = p;
+  lbFrame.className = "lb-frame is-reels";
+  lbFrame.innerHTML = '<div class="reel-grid">' + p.vlist.map(function(r, i){
+    return '<button class="reel-opt" data-i="' + i + '">'+
+      '<span class="reel-thumb" style="background-image:url(' + ytThumb(r.url) + ')"><span class="reel-play">▶</span></span>'+
+      '<span class="reel-lbl">' + r.label + '</span></button>';
+  }).join("") + '</div>';
+  lbFrame.querySelectorAll(".reel-opt").forEach(function(btn){
+    btn.addEventListener("click", function(){ playReel(parseInt(btn.dataset.i, 10)); });
+  });
+}
+function playReel(i){
+  var r = reelSet.vlist[i];
+  lbFrame.className = "lb-frame is-reel-player";
+  lbFrame.innerHTML =
+    '<button class="reel-back">‹ All reels</button>'+
+    '<div class="reel-frame"><iframe src="' + ytEmbed(r.url) + '" allow="autoplay; fullscreen" allowfullscreen></iframe></div>';
+  lbFrame.querySelector(".reel-back").addEventListener("click", function(){ renderReels(reelSet); });
+}
+var reelSet = null;
 function closeLightbox(){
   lightbox.classList.remove("is-open");
   lbFrame.innerHTML = "";
+  lbFrame.className = "lb-frame";
   if (lenis) lenis.start();
 }
 lightbox.addEventListener("click", function(e){ if (e.target === lightbox) closeLightbox(); });

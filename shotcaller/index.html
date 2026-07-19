@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShotCaller — Higgsfield Prompt Studio</title>
+<meta name="description" content="Turn a screenplay into paste-ready, cinematography-precise AI video prompts. A Convex Interactive production tool.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+:root{
+  --bg:#0A0A0F;
+  --surface:#12121B;
+  --surface-2:#191926;
+  --surface-3:#20202E;
+  --line:rgba(255,255,255,.07);
+  --line-2:rgba(255,255,255,.13);
+  --ink:#EDEDF3;
+  --ink-2:#B4B4C4;
+  --muted:#7C7C92;
+  --neon:#3B7BFF;
+  --neon-bright:#6FA0FF;
+  --neon-dim:rgba(59,123,255,.14);
+  --neon-glow:rgba(59,123,255,.4);
+  --ok:#34D399;
+  --warn:#FBBF24;
+  --stage:#F87171;
+  --radius:14px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--neon);color:#fff}
+button,input,textarea,select{font-family:inherit}
+button{cursor:pointer;border:none;background:none;color:inherit}
+a{color:inherit;text-decoration:none}
+.disp{font-family:'Space Grotesk',sans-serif}
+.uc{text-transform:uppercase;letter-spacing:.14em}
+.mono{font-family:var(--mono)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:10px;border:2px solid var(--bg)}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ambient glow */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(700px 500px at 78% -8%,rgba(59,123,255,.10),transparent 70%),
+    radial-gradient(600px 500px at 12% 108%,rgba(59,123,255,.06),transparent 70%);
+}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:242px 1fr;min-height:100vh;position:relative;z-index:1}
+.sidebar{
+  background:rgba(18,18,27,.6);border-right:1px solid var(--line);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:11px;padding:22px 20px 20px}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;flex:none;position:relative;
+  background:linear-gradient(135deg,var(--neon),#7C5BFF);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 20px var(--neon-glow);
+}
+.brand-mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.brand b{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;letter-spacing:-.01em;display:block;line-height:1.1}
+.brand small{font-size:11px;color:var(--muted)}
+.nav{padding:6px 12px;display:flex;flex-direction:column;gap:2px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;
+  font-size:14px;font-weight:500;color:var(--ink-2);width:100%;text-align:left;
+  transition:background .15s var(--ease),color .15s var(--ease);
+}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.nav-item:hover{background:var(--surface-2)}
+.nav-item.active{background:var(--neon-dim);color:var(--neon-bright)}
+.nav-item.active svg{opacity:1}
+.side-profile{margin-top:auto;padding:16px;border-top:1px solid var(--line)}
+.sp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sp-head b{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.sp-head .lvl{font-family:var(--mono);font-size:10px;color:var(--neon-bright)}
+.sp-bar{height:6px;border-radius:6px;background:var(--surface-3);overflow:hidden;margin-bottom:8px}
+.sp-bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--neon),var(--neon-bright));width:0;transition:width .6s var(--ease-out);box-shadow:0 0 10px var(--neon-glow)}
+.sp-note{font-size:11px;color:var(--muted);line-height:1.4}
+
+/* ---------- main ---------- */
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:rgba(10,10,15,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:13px 30px;
+}
+.crumb{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.crumb b{color:var(--ink-2);font-weight:500}
+.spacer{flex:1}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;
+  font-size:14px;font-weight:600;white-space:nowrap;
+  transition:transform .12s var(--ease),box-shadow .18s var(--ease),background .15s var(--ease),border-color .15s var(--ease),color .15s var(--ease);
+}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.btn-primary{background:var(--neon);color:#fff;box-shadow:0 0 0 rgba(59,123,255,0)}
+.btn-primary:hover{background:var(--neon-bright);box-shadow:0 6px 26px var(--neon-glow)}
+.btn-primary:active{transform:translateY(1px)}
+.btn-ghost{background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink-2)}
+.btn-ghost:hover{border-color:var(--muted);color:var(--ink)}
+.btn-soft{background:var(--neon-dim);color:var(--neon-bright)}
+.btn-soft:hover{background:rgba(59,123,255,.2)}
+
+.content{padding:34px 30px 80px;max-width:1240px;width:100%;margin:0 auto;flex:1}
+.eyebrow{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--neon-bright);margin-bottom:10px}
+.page-head h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:600;letter-spacing:-.02em}
+.page-head p{color:var(--muted);font-size:14.5px;margin-top:5px;max-width:64ch}
+
+/* ---------- library ---------- */
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-top:26px}
+.proj-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;cursor:pointer;transition:transform .18s var(--ease-out),box-shadow .18s var(--ease),border-color .18s var(--ease);
+  position:relative;overflow:hidden;
+}
+.proj-card:hover{transform:translateY(-3px);border-color:var(--line-2);box-shadow:0 14px 40px rgba(0,0,0,.4)}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}
+.type-badge{
+  display:inline-flex;align-items:center;gap:6px;font-family:'Space Grotesk',sans-serif;
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border-radius:100px;
+}
+.type-product{background:rgba(251,191,36,.14);color:#FBBF24}
+.type-ugc{background:rgba(52,211,153,.14);color:#34D399}
+.type-dvc{background:var(--neon-dim);color:var(--neon-bright)}
+.pc-ar{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.proj-card h3{font-size:17px;font-weight:600;letter-spacing:-.01em;margin-bottom:6px}
+.proj-card .excerpt{font-size:13px;color:var(--muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:16px}
+.pc-meta{display:flex;gap:16px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.pc-meta b{color:var(--ink-2);font-family:var(--mono);font-weight:500}
+.new-card{
+  border:1.5px dashed var(--line-2);background:transparent;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:10px;color:var(--muted);min-height:200px;font-weight:500;
+}
+.new-card:hover{border-color:var(--neon);color:var(--neon-bright);background:var(--neon-dim);transform:translateY(-3px)}
+.new-card svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6}
+
+/* ---------- back ---------- */
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:20px;transition:color .15s}
+.back:hover{color:var(--ink)}
+.back svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ---------- new project form ---------- */
+.form{max-width:760px}
+.fld{margin-bottom:20px}
+.lbl{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:8px}
+.lbl span{color:var(--muted);font-weight:400}
+.form textarea,.form input,.form select{
+  width:100%;background:var(--surface);border:1px solid var(--line-2);border-radius:11px;
+  padding:13px 15px;font-size:14.5px;color:var(--ink);outline:none;
+  transition:border-color .15s var(--ease),box-shadow .15s var(--ease);
+}
+.form textarea{min-height:200px;resize:vertical;line-height:1.6;font-family:var(--mono);font-size:13.5px}
+.form input:focus,.form textarea:focus,.form select:focus{border-color:var(--neon);box-shadow:0 0 0 3px var(--neon-dim)}
+.form-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.drop-hint{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:8px}
+.drop-hint svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+.samples{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sample-pill{font-size:12px;padding:6px 12px;border-radius:100px;border:1px solid var(--line-2);color:var(--ink-2);transition:all .15s}
+.sample-pill:hover{border-color:var(--neon);color:var(--neon-bright)}
+.form-actions{display:flex;gap:12px;margin-top:24px}
+
+/* ---------- classification ---------- */
+.classify-wrap{max-width:640px;margin:40px auto;text-align:center}
+.classify-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:40px 36px;position:relative;overflow:hidden;
+}
+.classify-card::before{content:"";position:absolute;left:50%;top:-120px;width:300px;height:300px;margin-left:-150px;border-radius:50%;background:radial-gradient(circle,var(--neon-dim),transparent 65%);filter:blur(30px)}
+.classify-card .robo{width:52px;height:52px;margin:0 auto 18px;border-radius:14px;background:var(--neon-dim);display:flex;align-items:center;justify-content:center}
+.classify-card .robo svg{width:26px;height:26px;stroke:var(--neon-bright);fill:none;stroke-width:1.6}
+.classify-card h2{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;color:var(--muted);margin-bottom:6px}
+.classify-card .verdict{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:600;letter-spacing:-.02em;margin-bottom:6px}
+.classify-card .reason{font-size:14px;color:var(--ink-2);max-width:44ch;margin:0 auto 8px;line-height:1.6}
+.classify-card .conf{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:26px}
+.type-pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:26px}
+.type-pill{
+  padding:12px 18px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface-2);text-align:center;min-width:120px;
+  transition:all .15s var(--ease);
+}
+.type-pill:hover{border-color:var(--muted)}
+.type-pill.sel{border-color:var(--neon);background:var(--neon-dim);box-shadow:0 0 0 3px var(--neon-dim)}
+.type-pill b{display:block;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600}
+.type-pill small{font-size:11px;color:var(--muted)}
+.type-pill.sel small{color:var(--neon-bright)}
+
+/* ---------- intake wizard modal ---------- */
+.wizard-overlay{
+  position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:rgba(6,6,10,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;transition:opacity .3s var(--ease);
+}
+.wizard-overlay.open{opacity:1;pointer-events:auto}
+.wizard{
+  width:min(560px,100%);background:var(--surface);border:1px solid var(--line-2);border-radius:20px;overflow:hidden;
+  box-shadow:0 30px 90px rgba(0,0,0,.6);
+}
+.wiz-prog{height:3px;background:var(--surface-3)}
+.wiz-prog i{display:block;height:100%;background:linear-gradient(90deg,var(--neon),var(--neon-bright));transition:width .4s var(--ease-out);box-shadow:0 0 10px var(--neon-glow)}
+.wiz-body{padding:30px 34px 26px}
+.wiz-step{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.wiz-q{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:600;letter-spacing:-.01em;line-height:1.3;margin-bottom:20px}
+.wiz-opts{display:flex;flex-direction:column;gap:9px;margin-bottom:8px}
+.wiz-opt{
+  position:relative;text-align:left;padding:13px 15px;border-radius:11px;border:1px solid var(--line-2);
+  background:var(--surface-2);font-size:14px;transition:all .14s var(--ease);
+}
+.wiz-opt:hover{border-color:var(--muted)}
+.wiz-opt.sel{border-color:var(--neon);background:var(--neon-dim)}
+.wiz-opt .aipick{
+  position:absolute;top:50%;right:13px;transform:translateY(-50%);
+  font-family:var(--mono);font-size:9px;letter-spacing:.08em;color:var(--neon-bright);
+  background:var(--neon-dim);padding:3px 8px;border-radius:100px;display:flex;align-items:center;gap:4px;
+}
+.wiz-other{margin-top:9px}
+.wiz-other input{width:100%;background:var(--surface-2);border:1px solid var(--line-2);border-radius:11px;padding:12px 15px;font-size:14px;color:var(--ink);outline:none}
+.wiz-other input:focus{border-color:var(--neon)}
+.wiz-foot{display:flex;align-items:center;justify-content:space-between;padding:16px 34px;border-top:1px solid var(--line);background:var(--surface-2)}
+.wiz-back{font-size:13px;color:var(--muted);font-weight:500}
+.wiz-back:hover{color:var(--ink)}
+.wiz-back:disabled{opacity:.3;cursor:default}
+
+/* ---------- loading slate ---------- */
+.slate-wrap{max-width:520px;margin:80px auto;text-align:center}
+.slate{
+  width:200px;height:130px;margin:0 auto 24px;border-radius:12px;overflow:hidden;position:relative;
+  background:var(--surface-2);border:1px solid var(--line-2);
+}
+.slate-top{height:34px;display:flex;background:repeating-linear-gradient(115deg,#1a1a26 0 20px,var(--ink) 20px 40px);transform-origin:left center;animation:clap 1.4s var(--ease-out) infinite}
+@keyframes clap{0%,100%{transform:rotate(0)}20%{transform:rotate(-16deg)}40%{transform:rotate(0)}}
+.slate-body{position:absolute;left:0;right:0;bottom:0;top:34px;padding:12px 14px;font-family:var(--mono);font-size:10px;color:var(--muted);text-align:left;line-height:1.9}
+.slate-body b{color:var(--neon-bright)}
+.slate-wrap h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;margin-bottom:8px}
+.slate-status{font-family:var(--mono);font-size:12px;color:var(--muted);min-height:20px}
+
+/* ---------- shot deck ---------- */
+.deck-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:16px}
+.deck-title h1{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:600;letter-spacing:-.02em}
+.summary-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.chip{
+  font-family:var(--mono);font-size:11px;padding:6px 11px;border-radius:100px;
+  border:1px solid var(--line-2);color:var(--ink-2);display:inline-flex;align-items:center;gap:6px;
+}
+.deck-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+.section-label{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:34px 0 14px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+/* moodboard */
+.mood-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.mini-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.mini-card .mc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mini-card h4{font-size:13px;font-weight:600}
+.rec-tag{font-family:var(--mono);font-size:9px;color:var(--ok);background:rgba(52,211,153,.12);padding:3px 7px;border-radius:100px}
+.prompt-block{
+  font-family:var(--mono);font-size:12px;line-height:1.65;color:var(--ink-2);
+  background:var(--bg);border:1px solid var(--line);border-left:2px solid var(--neon);border-radius:9px;
+  padding:12px 13px;position:relative;max-height:150px;overflow:auto;white-space:pre-wrap;
+}
+.mini-card .prompt-block{max-height:120px;margin-bottom:10px}
+
+/* shot cards */
+.shot-list{display:flex;flex-direction:column;gap:16px}
+.shot-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.sc-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+.sc-num{font-family:var(--mono);font-size:11px;color:var(--neon-bright);letter-spacing:.1em}
+.sc-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin-top:2px}
+.sc-dur{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.sc-body{padding:18px 20px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{
+  font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:9px;color:var(--muted);
+  border:1px solid transparent;transition:all .14s var(--ease);
+}
+.tab:hover{color:var(--ink-2)}
+.tab.active{background:var(--surface-2);color:var(--ink);border-color:var(--line-2)}
+.copy-btn{
+  position:absolute;top:9px;right:9px;font-size:11px;font-weight:600;padding:5px 11px;border-radius:8px;
+  background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink-2);display:inline-flex;align-items:center;gap:6px;
+  transition:all .14s var(--ease);z-index:2;
+}
+.copy-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+.copy-btn:hover{border-color:var(--neon);color:var(--neon-bright)}
+.copy-btn.done{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.4);color:var(--ok)}
+.prompt-block.full{max-height:none}
+.pb-pad{padding-right:88px}
+
+.sc-tools{display:flex;gap:10px;margin-top:14px}
+.tool-btn{
+  font-size:12.5px;font-weight:500;padding:8px 13px;border-radius:9px;color:var(--ink-2);
+  background:var(--surface-2);border:1px solid var(--line-2);display:inline-flex;align-items:center;gap:7px;
+  transition:all .14s var(--ease);
+}
+.tool-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+.tool-btn:hover{border-color:var(--neon);color:var(--neon-bright)}
+
+/* camera controls panel */
+.controls-panel{
+  margin-top:14px;border-top:1px solid var(--line);overflow:hidden;
+  max-height:0;transition:max-height .35s var(--ease);
+}
+.controls-panel.open{max-height:1600px}
+.cp-inner{padding-top:18px}
+.control-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.control{position:relative}
+.control label{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.select-wrap{position:relative}
+.select-wrap select{
+  width:100%;appearance:none;background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;
+  padding:10px 34px 10px 13px;font-size:13.5px;color:var(--ink);outline:none;cursor:pointer;
+}
+.select-wrap select:focus{border-color:var(--neon)}
+.select-wrap::after{content:"▾";position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:11px}
+.control .explain{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.45;min-height:16px}
+.flag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:var(--mono);margin-left:6px}
+.flag i{width:7px;height:7px;border-radius:50%}
+.flag-ok i{background:var(--ok)}
+.flag-warn i{background:var(--warn)}
+.flag-stage i{background:var(--stage)}
+.stage-warn{
+  margin-top:12px;display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--warn);line-height:1.45;
+  background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:9px;padding:10px 12px;
+}
+.stage-warn svg{width:15px;height:15px;flex:none;margin-top:1px;stroke:currentColor;fill:none;stroke-width:1.8}
+.cp-actions{display:flex;gap:10px;margin-top:16px}
+
+/* visual shot picker */
+.picker{margin-top:16px}
+.picker-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.pk-tab{font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;color:var(--muted);border:1px solid var(--line);transition:all .14s}
+.pk-tab:hover{color:var(--ink-2)}
+.pk-tab.active{background:var(--surface-2);color:var(--ink);border-color:var(--line-2)}
+.pk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.pk-cell{
+  cursor:pointer;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);background:var(--surface-2);
+  transition:border-color .15s var(--ease),transform .15s var(--ease-out);
+}
+.pk-cell:hover{border-color:var(--line-2);transform:translateY(-2px)}
+.pk-cell.sel{border-color:var(--neon);box-shadow:0 0 0 2px var(--neon-dim)}
+.pk-thumb{width:100%;aspect-ratio:16/10;position:relative;background:#0d0d14;display:block}
+.pk-lbl{font-size:11px;font-weight:500;padding:7px 8px;text-align:center;color:var(--ink-2)}
+.pk-cell.sel .pk-lbl{color:var(--neon-bright)}
+
+/* rate */
+.rate-row{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:12.5px;color:var(--muted)}
+.rate-btn{
+  width:32px;height:32px;border-radius:9px;border:1px solid var(--line-2);background:var(--surface-2);
+  display:flex;align-items:center;justify-content:center;transition:all .14s var(--ease);
+}
+.rate-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8}
+.rate-btn:hover{border-color:var(--neon);color:var(--neon-bright)}
+.rate-btn.on-up{background:rgba(52,211,153,.14);border-color:rgba(52,211,153,.4);color:var(--ok)}
+.rate-btn.on-down{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.4);color:var(--stage)}
+
+/* camera guide page */
+.guide-cat{margin-bottom:32px}
+.guide-cat h3{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;margin-bottom:4px}
+.guide-cat p{font-size:13px;color:var(--muted);margin-bottom:14px}
+.guide-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.guide-item{display:flex;gap:11px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+.guide-item b{font-size:13.5px;font-weight:600;display:block;margin-bottom:2px}
+.guide-item span{font-size:12px;color:var(--muted);line-height:1.45}
+
+/* toast */
+.toast{
+  position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:300;
+  background:var(--surface-2);border:1px solid var(--line-2);color:var(--ink);padding:11px 18px;border-radius:100px;
+  font-size:13.5px;font-weight:500;box-shadow:0 18px 50px rgba(0,0,0,.5);opacity:0;pointer-events:none;
+  transition:all .3s var(--ease);display:flex;align-items:center;gap:9px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{width:16px;height:16px;stroke:var(--ok);fill:none;stroke-width:2.2}
+
+@media (max-width:920px){
+  .app{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .control-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h16M9 4v16"/></svg></span>
+      <span><b>ShotCaller</b><small>Convex · Prompt Studio</small></span>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="library"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Projects</button>
+      <button class="nav-item" data-view="new"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Project</button>
+      <button class="nav-item" data-view="guide"><svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7zM1 5h15v14H1z"/></svg>Camera Guide</button>
+    </nav>
+    <div class="side-profile">
+      <div class="sp-head"><b>Style Profile</b><span class="lvl" id="spLvl">LVL 1</span></div>
+      <div class="sp-bar"><i id="spBar"></i></div>
+      <div class="sp-note" id="spNote">Rate and edit shots to teach ShotCaller your taste. It biases every future generation.</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb"><b>ShotCaller</b></div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" onclick="go('new')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New Project</button>
+    </div>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<!-- intake wizard -->
+<div class="wizard-overlay" id="wizardOverlay">
+  <div class="wizard">
+    <div class="wiz-prog"><i id="wizProg"></i></div>
+    <div class="wiz-body" id="wizBody"></div>
+    <div class="wiz-foot">
+      <button class="wiz-back" id="wizBack">← Back</button>
+      <button class="btn btn-primary" id="wizNext">Next →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+
+<script>
+"use strict";
+var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ============================================================
+   CAMERA VOCABULARY  (explainer + feasibility flag per option)
+   flag: ok = one clip · warn = keep slow/simple · stage = edit-stage
+============================================================ */
+var VOCAB = {
+  shotSize:{ label:"Shot Size", opts:[
+    ["Extreme Wide","subject tiny in vast space — scale, isolation","ok"],
+    ["Wide","head-to-toe plus environment — geography","ok"],
+    ["Full Shot","fills frame head-to-toe — body language","ok"],
+    ["Cowboy","mid-thigh up — swagger","ok"],
+    ["Medium","waist up — conversational","ok"],
+    ["Medium Close-Up","chest up — the standard emotion frame","ok"],
+    ["Close-Up","face fills frame — intimacy","ok"],
+    ["Extreme Close-Up","eyes / lips / detail — intensity","ok"]
+  ]},
+  angle:{ label:"Angle", opts:[
+    ["Eye-level","neutral, honest","ok"],
+    ["Low-angle","looking up — power, heroism","ok"],
+    ["High-angle","looking down — vulnerability","ok"],
+    ["Overhead","top-down — pattern, god's-eye","ok"],
+    ["Worm's-eye","extreme low — monumental","ok"],
+    ["Dutch / canted","tilted horizon — unease","ok"]
+  ]},
+  movement:{ label:"Movement", opts:[
+    ["Static","locked frame — lets performance carry the shot","ok"],
+    ["Pan","horizontal reveal from a fixed point","ok"],
+    ["Whip pan","blurred energy accent / transition","warn"],
+    ["Tilt","vertical reveal — height or dropped gaze","ok"],
+    ["Slow zoom","creeping focus or release","ok"],
+    ["Crash zoom","aggressive punch-in","warn"],
+    ["Dolly in","intensify, realization","ok"],
+    ["Dolly out","reveal context, release","ok"],
+    ["Truck","camera moves laterally through space","ok"],
+    ["Slider","short smooth lateral glide — product staple","ok"],
+    ["Pedestal","camera body rises or lowers","ok"],
+    ["Push-past","glide past a foreground object to the subject","ok"],
+    ["Arc","partial circle around subject — keep slow","warn"],
+    ["Orbit","fuller circle — hero / product reveal","warn"],
+    ["Tracking","move alongside a moving subject","ok"],
+    ["Follow / OTS","behind the subject as they move","ok"],
+    ["Reverse track","camera leads, subject walks to it","ok"],
+    ["Low tracking","ground-skimming travel — speed, menace","ok"],
+    ["Handheld","organic urgency, controlled shake — UGC default","ok"],
+    ["Steadicam","smooth float through space","ok"],
+    ["Crane","sweeping vertical arc — grandeur","ok"],
+    ["Drone push / pull","flying approach or withdrawal","ok"],
+    ["First-person POV","camera is the character's eyes","ok"],
+    ["Dolly-zoom","background warps, subject stays — the floor drops","warn"],
+    ["Bullet time","frozen moment, camera orbits — post only","stage"],
+    ["Speed ramp","time stretches then snaps — post only","stage"],
+    ["Hyperlapse","travelling time-lapse — post only","stage"]
+  ]},
+  lensFocus:{ label:"Lens / Focus", opts:[
+    ["Shallow focus","creamy bokeh isolation — beauty / luxury","ok"],
+    ["Deep focus","everything sharp — staging in depth","ok"],
+    ["Rack focus","shift near→far — redirects the eye","warn"],
+    ["Macro","miniature-world glide across detail","warn"],
+    ["Wide 24mm","expansive, slight distortion","ok"],
+    ["Normal 50mm","natural perspective","ok"],
+    ["Short tele 85mm","compressed, flattering portrait","ok"],
+    ["Long tele 135mm","heavy compression, voyeuristic","ok"]
+  ]},
+  lighting:{ label:"Lighting", opts:[
+    ["Golden-hour backlight","rim gold, warm","ok"],
+    ["Window daylight","soft directional key","ok"],
+    ["Hard direct flash","UGC / raw look","ok"],
+    ["Practical night","neon / lamps / signs","ok"],
+    ["Overcast soft","even, wrapping","ok"],
+    ["Low-key single source","drama, deep shadows","ok"],
+    ["High-key even","clean commercial","ok"],
+    ["Ring light","creator catchlight","ok"]
+  ]},
+  energy:{ label:"Energy", opts:[
+    ["Calm / suspended","stillness, held breath","ok"],
+    ["Steady / confident","measured, grounded","ok"],
+    ["Building","tension rising","ok"],
+    ["High-energy / kinetic","fast, charged","ok"]
+  ]}
+};
+function flagClass(f){ return f==="ok"?"flag-ok":f==="warn"?"flag-warn":"flag-stage"; }
+function flagFor(cat,name){ var o=(VOCAB[cat].opts.filter(function(x){return x[0]===name;})[0]); return o?o[2]:"ok"; }
+function explainFor(cat,name){ var o=(VOCAB[cat].opts.filter(function(x){return x[0]===name;})[0]); return o?o[1]:""; }
+
+/* ============================================================
+   SEED PROJECTS (pre-written, richly)
+============================================================ */
+function BIBLE(label,ref,block){ return {label:label,ref:ref,block:block}; }
+
+var SEEDS = [
+  {
+    id:"seed-dvc", name:"The Return — Perfume DVC", type:"dvc", ar:"9:16", platform:"Reels", dur:30,
+    screenplay:"A man in a tailored coat walks back into the empty family house at dusk. He runs a hand along the dust-sheeted furniture, stops at a mirror, and unstoppers a bottle of cologne. The scent pulls him back — a flash of a younger self, a doorway, someone leaving. He straightens, sets his jaw, and steps out into the last gold light. Tagline card: Some things you carry.",
+    tag:"Cinematic · low-key · memory piece. Signature image: the man at the mirror, half in shadow.",
+    bible:[
+      BIBLE("The Man","@man_ref","A man in his late 30s, sharp jawline, short dark hair swept back, three-day stubble, wearing a charcoal wool overcoat over a white open-collar shirt, quiet composure, weight in every movement."),
+      BIBLE("The Cologne","@bottle_ref","A heavy square amber-glass cologne bottle with a matte-black cap and a thin gold band at the neck, no legible label.")
+    ],
+    mood:[
+      {id:"m1",title:"Combined grid (1 credit — recommended)",prompt:"Hyper-realistic 4-panel vertical collage, same man in all panels, maintain exact face identity across every panel. Panel 1: wide, the man silhouetted in a doorway against dying gold light, dust-sheeted furniture. Panel 2: medium close-up at a mirror, half his face in warm rim light, half in shadow. Panel 3: extreme close-up of hands unstoppering a square amber cologne bottle. Panel 4: low-angle full shot, the man stepping out into golden backlight, coat shifting. Low-key cinematic grade, teal shadows and warm highlights, 35mm film grain, shot on full-frame, 50mm, f/2, shallow depth of field. Consistent identity in all panels."},
+      {id:"m2",title:"Panel 1 · Doorway",prompt:"The man silhouetted in a doorway of an empty family house at dusk, dying gold light behind him, dust-sheeted furniture in the foreground midground background depth, low-key cinematic grade, teal shadows, warm rim, 35mm grain, shot on full-frame 35mm f/2.8."},
+      {id:"m3",title:"Panel 2 · Mirror",prompt:"Medium close-up of the man at an old mirror, half his face in warm practical rim light, half sinking into shadow, dust motes in the beam, low-key single-source lighting, teal-and-amber grade, visible skin texture, catchlight in one eye, 85mm f/1.8."}
+    ],
+    shots:[
+      { id:"d1", number:1, name:"Walk-in reveal", dur:5,
+        controls:{shotSize:"Wide",angle:"Eye-level",movement:"Dolly in",lensFocus:"Deep focus",lighting:"Golden-hour backlight",energy:"Calm / suspended"},
+        startFrame:"Wide shot, eye-level. A man in a charcoal overcoat (@man_ref) stands just inside the doorway of an empty family house at dusk, dust-sheeted furniture around him, the last gold light spilling through tall windows behind. Deep focus, foreground midground background clearly staged. Golden-hour backlight rims his shoulders, warm key from the window, teal shadows. Cinematic low-key grade, 35mm film grain, shot on full-frame 35mm f/4, natural skintone, subtle haze. Mood: quiet return.",
+        video:"Wide shot, 35mm deep focus. Camera: a slow dolly in toward the man, steady and grounded, closing the distance as the room reveals its stillness. Image context: dust hangs in the gold backlight, sheeted furniture flanks him. Subject action: the man (@man_ref) steps once forward and stops, gaze sweeping the room, coat settling with the weight of the motion — one continuous beat, no other people. Golden-hour backlight, warm window key, teal shadows, 35mm grain. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"" },
+      { id:"d2", number:2, name:"The mirror", dur:6,
+        controls:{shotSize:"Medium Close-Up",angle:"Eye-level",movement:"Slow zoom",lensFocus:"Shallow focus",lighting:"Low-key single source",energy:"Building"},
+        startFrame:"Medium close-up, eye-level. The man (@man_ref) faces an old mirror, half his face caught in a warm practical rim, half falling into shadow, dust motes drifting in the single beam. Shallow focus, background dissolved. Low-key single-source lighting, teal-and-amber grade, visible skin texture, catchlight in one eye, 85mm f/1.8, 35mm grain. Mood: memory surfacing.",
+        video:"Medium close-up, 85mm shallow focus. Camera: a slow creeping zoom in on his reflected face, almost imperceptible. Image context: only the mirror's warm rim and drifting dust motes. Subject action: the man (@man_ref) meets his own eyes, jaw tightening, a single slow blink as the memory lands — no other movement, weight held. Low-key single source, teal-amber grade, real skin, 35mm grain. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"Memory flash-cut (younger self / doorway) is an edit-stage insert — cut it in post between this shot and the next." },
+      { id:"d3", number:3, name:"Unstopper", dur:4,
+        controls:{shotSize:"Extreme Close-Up",angle:"High-angle",movement:"Static","lensFocus":"Macro",lighting:"Window daylight",energy:"Steady / confident"},
+        startFrame:"Extreme close-up, high-angle looking down. Two hands (@man_ref) lift a heavy square amber cologne bottle (@bottle_ref) and grip the matte-black cap. Macro detail on the glass facets and the thin gold neck band, shallow plane of focus. Soft window daylight from the left, warm reflections in the glass, natural skin texture on the hands, 35mm grain, full-frame 100mm macro. Mood: ritual.",
+        video:"Extreme close-up macro, high-angle. Camera: locked static, letting the gesture carry the frame. Image context: warm window light glints on the amber facets. Subject action: the hands (@man_ref) turn and lift the black cap off the square bottle (@bottle_ref) in one smooth motion, a thread of the scent implied — a single clean gesture, no fumbling. Window daylight key, real skin texture, 35mm grain. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"" },
+      { id:"d4", number:4, name:"Step into light", dur:5,
+        controls:{shotSize:"Full Shot",angle:"Low-angle",movement:"Crane",lensFocus:"Normal 50mm",lighting:"Golden-hour backlight",energy:"High-energy / kinetic"},
+        startFrame:"Full shot, low-angle. The man (@man_ref) stands in the open doorway, backlit by the last blaze of golden light, coat edges glowing, the dark house behind him. Normal 50mm, grounded perspective, strong golden-hour backlight with a warm bounce on his face, teal interior shadow. Cinematic grade, 35mm grain, full-frame 50mm f/2.8. Mood: resolve.",
+        video:"Full shot, 50mm, low-angle. Camera: a rising crane move, lifting slightly as he moves, lending scale. Image context: the doorway blazes gold, the house dark behind. Subject action: the man (@man_ref) sets his jaw and steps out through the doorway into the light, coat shifting with the stride, one decisive forward motion. Golden-hour backlight, warm bounce, 35mm grain. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"Tagline card 'Some things you carry' is a post title — do not render text in-frame." }
+    ]
+  },
+  {
+    id:"seed-ugc", name:"Glow Serum — Morning Routine", type:"ugc", ar:"9:16", platform:"TikTok", dur:22,
+    screenplay:"A creator films a get-ready-with-me. She holds up a small frosted serum dropper, does a quick before/after cheek swipe to camera, talks about how it feels, applies it at the bathroom mirror, and ends with a confident to-camera line and a soft call to try it.",
+    tag:"UGC testimonial · phone-held handheld · bright bathroom · relatable-morning hook.",
+    bible:[
+      BIBLE("The Creator","@creator_ref","A woman with warm-toned skin, long dark wavy hair, minimal jewellery, an oversized cream ribbed sweater, natural makeup, easy relatable energy."),
+      BIBLE("The Serum","@serum_ref","A small frosted-glass serum bottle with a matte white dropper cap, roughly palm-sized, no legible label.")
+    ],
+    mood:[
+      {id:"um1",title:"Combined grid (1 credit — recommended)",prompt:"Hyper-realistic 4-panel vertical collage, same woman in all panels, maintain exact face identity in every panel. Panel 1: arm's-length selfie, bright modern bathroom, holding a small frosted serum dropper up to camera. Panel 2: close-up of a serum swipe on one cheek, natural window light. Panel 3: medium at the mirror applying the serum, ring-light catchlight. Panel 4: chest-up to-camera smile. Bright high-key look, visible skin texture and natural imperfections, no smoothing, real morning window light, shot on phone. Consistent identity across panels."}
+    ],
+    modelGen:"Portrait of a woman with warm-toned skin, long dark wavy hair, an oversized cream ribbed sweater, minimal jewellery, natural everyday makeup, relaxed relatable expression. Bright modern bathroom, white surfaces, soft morning window light from the left, softly blurred background. Visible skin texture, natural pores, subtle imperfections, realistic complexion, no AI smoothing. Shot on a phone front camera, natural light. Identity fixed, zero deviation.",
+    productImg:"A small frosted-glass serum bottle with a matte white dropper cap (@serum_ref) resting on a white marble bathroom counter, a few water droplets nearby, soft morning window light from the left, shallow depth of field, product-hero clarity, realistic glass and liquid, no legible label. Shot on full-frame, 85mm, f/2.8.",
+    shots:[
+      { id:"u1", number:1, name:"Hook — the hold-up", dur:4,
+        controls:{shotSize:"Medium Close-Up",angle:"Eye-level",movement:"Handheld",lensFocus:"Normal 50mm",lighting:"Window daylight",energy:"Steady / confident"},
+        startFrame:"Medium close-up, eye-level arm's-length selfie. The creator (@creator_ref) in a bright modern bathroom with white surfaces, holding a small frosted serum dropper (@serum_ref) up beside her face, warm relatable expression. Soft morning window daylight from the left, softly blurred background. Visible skin texture, natural imperfections, no smoothing, real complexion. Shot on a phone front camera. Mood: relatable morning.",
+        video:"Medium close-up, phone-held handheld with a slight natural shake, eye-level selfie. Camera: handheld, organic, holding on her face and the bottle. Image context: bright bathroom, soft window light from the left. Subject action: the creator (@creator_ref) lifts the frosted serum dropper (@serum_ref) into frame beside her cheek and gives an easy, knowing look to camera — one continuous beat, natural micro-expressions, real skin texture, no other people. Window daylight, no smoothing. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"Hook caption (first 3s) added in post." },
+      { id:"u2", number:2, name:"Before/after swipe", dur:5,
+        controls:{shotSize:"Close-Up",angle:"Eye-level",movement:"Handheld",lensFocus:"Shallow focus",lighting:"Window daylight",energy:"Building"},
+        startFrame:"Close-up, eye-level. One cheek of the creator (@creator_ref) fills the frame, a glossy serum swipe catching the light on the skin, the frosted dropper (@serum_ref) just entering frame. Shallow focus, bright window daylight from the left, visible pores and natural texture, no smoothing, realistic complexion. Shot on a phone. Mood: proof.",
+        video:"Close-up, shallow focus, phone handheld. Camera: handheld, tight on the cheek. Image context: window light rakes across the skin to show the sheen. Subject action: the creator (@creator_ref) draws one finger with the serum (@serum_ref) across her cheek in a single smooth swipe, the skin catching light — one clean gesture, real texture, natural imperfection. Window daylight, no AI smoothing. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"" },
+      { id:"u3", number:3, name:"Apply at mirror", dur:7,
+        controls:{shotSize:"Medium",angle:"Eye-level",movement:"Static",lensFocus:"Normal 50mm",lighting:"Ring light",energy:"Steady / confident"},
+        startFrame:"Medium shot, eye-level, desk-height framing at the bathroom mirror. The creator (@creator_ref) applies a drop of serum (@serum_ref) to her cheek, calm and practiced, the mirror doubling the bright room. Ring-light catchlight in the eyes, clean even fill, visible skin texture, natural imperfections, no smoothing. Shot on a phone. Mood: easy routine.",
+        video:"Medium shot, static phone at desk height, mirror behind. Camera: locked, letting her routine carry it. Image context: bright bathroom doubled in the mirror, ring-light catchlight. Subject action: the creator (@creator_ref) presses a single drop of serum (@serum_ref) into her cheek and smooths it with two fingertips, talking naturally to camera — one continuous action, real skin, relaxed micro-expressions. Ring light, no smoothing. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"" },
+      { id:"u4", number:4, name:"CTA to camera", dur:6,
+        controls:{shotSize:"Medium Close-Up",angle:"Eye-level",movement:"Handheld",lensFocus:"Normal 50mm",lighting:"Window daylight",energy:"High-energy / kinetic"},
+        startFrame:"Medium close-up, eye-level selfie. The creator (@creator_ref) smiles warmly to camera, skin glowing softly, holding the frosted serum (@serum_ref) near her chin. Bright window daylight, softly blurred bathroom, visible skin texture, natural imperfections, no smoothing. Shot on a phone front camera. Mood: confident, inviting.",
+        video:"Medium close-up, phone handheld selfie. Camera: handheld, warm and close. Image context: bright bathroom softly blurred, window light. Subject action: the creator (@creator_ref) gives a confident to-camera line and a small nod, lifting the serum (@serum_ref) briefly — one continuous beat, genuine smile, natural micro-movements, real skin. Window daylight, no smoothing. [Aspect 9:16 · single continuous action · no cuts · motivated light · natural skintone · film grain]",
+        post:"Soft CTA caption + product tag added in post." }
+    ]
+  }
+];
+
+/* intake question banks per type (demo) */
+var INTAKE = {
+  dvc:[
+    {q:"What's the emotional target of the piece?",opts:["Quiet melancholy / memory","Triumphant resolve","Tense unease","Warm nostalgia"],rec:0},
+    {q:"The signature image the whole piece is built around?",opts:["The man at the mirror, half in shadow","The doorway blaze of golden light","The cologne bottle in macro","AI decides from the script"],rec:0},
+    {q:"Look & grade?",opts:["Low-key, teal shadows + warm highlights","Bright, airy, pastel","High-contrast, hard shadows","Desaturated, muted"],rec:0},
+    {q:"Lens & format discipline?",opts:["35mm film look, shallow, grain","Clean digital, deep focus","Anamorphic wide, flares","Vintage soft, halation"],rec:0},
+    {q:"Camera-movement grammar?",opts:["Slow, deliberate, motivated","Static and composed","Roaming handheld","Sweeping crane / drone"],rec:0}
+  ],
+  ugc:[
+    {q:"Content format?",opts:["Testimonial / GRWM","Product demo","Interview / talking-head","Mirror-selfie routine"],rec:0},
+    {q:"Hook style for the first 3 seconds?",opts:["Relatable morning moment","Bold before/after claim","Pattern interrupt","Direct question to camera"],rec:0},
+    {q:"Platform & camera feel?",opts:["TikTok/Reels — phone handheld, natural light","Podcast — desk static, window/ring","Studio — clean, controlled","Outdoor — sunlight, movement"],rec:0},
+    {q:"Desired viewer emotion?",opts:["I want that glow / I trust her","This is fun / relatable","This actually works","Aspirational, premium"],rec:0},
+    {q:"Actor direction?",opts:["Warm, relatable creator","Polished, aspirational","Energetic, fast-talking","AI decides"],rec:0}
+  ],
+  product:[
+    {q:"Energy level for the product?",opts:["Calm luxury","Hype / kinetic","Clean & premium","Playful"],rec:2},
+    {q:"Hero feature to showcase?",opts:["Form & finish","A single standout feature","Scale / power","Texture / material"],rec:0},
+    {q:"Environment?",opts:["Seamless studio void","In-context lifestyle","Abstract light-and-particle","On a reflective surface"],rec:0},
+    {q:"Signature effect?",opts:["Slow orbit reveal","Speed ramp","Macro glide across the surface","Light-sweep bloom"],rec:0},
+    {q:"Grade & finish?",opts:["Deep blacks, specular highlights","Bright high-key","Warm & rich","Cool & clinical"],rec:0}
+  ]
+};
+
+/* ============================================================
+   STATE + HELPERS
+============================================================ */
+var projects = SEEDS.map(function(p){ return JSON.parse(JSON.stringify(p)); });
+var state = { view:"library", pid:null, draft:null };
+var xp = 0; /* style profile */
+
+var toastTimer;
+function toast(msg){
+  var t=document.getElementById("toast"); document.getElementById("toastMsg").textContent=msg;
+  t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove("show");},2000);
+}
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function projById(id){ return projects.filter(function(p){return p.id===id;})[0]; }
+function typeName(t){ return t==="dvc"?"AI DVC":t==="ugc"?"UGC":"Product Video"; }
+function typeClass(t){ return "type-"+t; }
+
+function addXp(n){
+  xp=Math.min(100,xp+n);
+  var lvl=Math.floor(xp/20)+1;
+  document.getElementById("spBar").style.width=xp+"%";
+  document.getElementById("spLvl").textContent="LVL "+lvl;
+  var notes=["Rate and edit shots to teach ShotCaller your taste.",
+    "Learning your framing preferences...",
+    "Noted: you favour slow, motivated moves and low-key grades.",
+    "Your style profile is shaping generations now.",
+    "Dialled in. New shots default to your taste."];
+  document.getElementById("spNote").textContent=notes[Math.min(notes.length-1,lvl-1)];
+}
+
+/* copy */
+function copyText(txt,btn){
+  navigator.clipboard.writeText(txt).then(function(){
+    if(btn){ var o=btn.innerHTML; btn.classList.add("done"); btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Copied';
+      setTimeout(function(){btn.classList.remove("done");btn.innerHTML=o;},1400); }
+    toast("Copied to clipboard");
+  },function(){toast("Copy failed");});
+}
+window.copyEl=function(id,btn){ var el=document.getElementById(id); if(el) copyText(el.dataset.raw||el.textContent,btn); };
+
+/* ============================================================
+   ROUTER
+============================================================ */
+function go(view,opts){
+  opts=opts||{}; state.view=view;
+  if(opts.pid!==undefined) state.pid=opts.pid;
+  document.querySelectorAll("#nav .nav-item").forEach(function(b){ b.classList.toggle("active", b.dataset.view===view); });
+  window.scrollTo(0,0);
+  render();
+}
+document.getElementById("nav").addEventListener("click",function(e){ var b=e.target.closest(".nav-item"); if(b) go(b.dataset.view); });
+
+function crumb(html){ document.getElementById("crumb").innerHTML=html; }
+function reveal(){
+  if(reduce) return;
+  gsap.from("#content > *",{opacity:0,y:16,duration:.5,ease:"power3.out",stagger:.05});
+}
+
+function render(){
+  var c=document.getElementById("content");
+  if(state.view==="library"){ c.innerHTML=viewLibrary(); crumb("<b>Projects</b>"); }
+  else if(state.view==="new"){ c.innerHTML=viewNew(); crumb('<span>Projects</span> / <b>New</b>'); wireNew(); }
+  else if(state.view==="classify"){ c.innerHTML=viewClassify(); crumb('<span>New</span> / <b>Classify</b>'); }
+  else if(state.view==="deck"){ c.innerHTML=viewDeck(); crumb('<span>Projects</span> / <b>'+esc(projById(state.pid).name)+'</b>'); wireDeck(); }
+  else if(state.view==="guide"){ c.innerHTML=viewGuide(); crumb("<b>Camera Guide</b>"); }
+  reveal();
+}
+
+/* ---------- LIBRARY ---------- */
+function viewLibrary(){
+  return '<div class="page-head"><div class="eyebrow">Higgsfield Prompt Studio</div>'+
+    '<h1>Projects</h1><p>Paste a screenplay or an idea. ShotCaller reads it, asks the right questions, and hands you paste-ready prompts with the cinematography already dialled in.</p></div>'+
+    '<div class="lib-grid">'+
+    projects.map(function(p){
+      return '<div class="proj-card" onclick="go(\'deck\',{pid:\''+p.id+'\'})">'+
+        '<div class="pc-top"><span class="type-badge '+typeClass(p.type)+'">'+typeName(p.type)+'</span><span class="pc-ar">'+esc(p.ar)+'</span></div>'+
+        '<h3>'+esc(p.name)+'</h3><div class="excerpt">'+esc(p.screenplay)+'</div>'+
+        '<div class="pc-meta"><span><b>'+p.shots.length+'</b> shots</span><span><b>'+p.dur+'s</b></span><span>'+esc(p.platform||"—")+'</span></div>'+
+      '</div>';
+    }).join("")+
+    '<button class="proj-card new-card" onclick="go(\'new\')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New project</button>'+
+    '</div>';
+}
+
+/* ---------- NEW ---------- */
+function viewNew(){
+  return '<button class="back" onclick="go(\'library\')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Projects</button>'+
+    '<div class="page-head"><div class="eyebrow">New project</div><h1>Paste the screenplay</h1><p>A full script or a rough idea, either works. ShotCaller figures out the rest.</p></div>'+
+    '<form class="form" id="npForm" onsubmit="return startClassify(event)" style="margin-top:22px">'+
+      '<div class="fld"><label class="lbl">Screenplay or idea</label>'+
+        '<textarea name="screenplay" required placeholder="Paste a screenplay, a scene, or describe the video you want to make..."></textarea>'+
+        '<div class="drop-hint"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Drop a .txt or .md file to load it</div>'+
+        '<div class="samples"><span style="font-size:12px;color:var(--muted);align-self:center;margin-right:2px">Try:</span>'+
+          '<button type="button" class="sample-pill" onclick="loadSample(\'dvc\')">Perfume DVC</button>'+
+          '<button type="button" class="sample-pill" onclick="loadSample(\'ugc\')">Serum UGC</button>'+
+          '<button type="button" class="sample-pill" onclick="loadSample(\'product\')">Product hype</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="form-row">'+
+        '<div class="fld"><label class="lbl">Platform</label><select name="platform"><option>Reels</option><option>TikTok</option><option>Shorts</option><option>YouTube</option><option>Other</option></select></div>'+
+        '<div class="fld"><label class="lbl">Aspect ratio</label><select name="ar"><option>9:16</option><option>16:9</option><option>1:1</option></select></div>'+
+        '<div class="fld"><label class="lbl">Duration <span>(sec)</span></label><input name="dur" type="number" value="30" min="5" max="120"></div>'+
+      '</div>'+
+      '<div class="form-actions"><button type="submit" class="btn btn-primary"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>Analyze screenplay</button>'+
+        '<button type="button" class="btn btn-ghost" onclick="go(\'library\')">Cancel</button></div>'+
+    '</form>';
+}
+function wireNew(){
+  var ta=document.querySelector("#npForm textarea"); if(!ta) return;
+  var box=ta;
+  box.addEventListener("dragover",function(e){e.preventDefault();box.style.borderColor="var(--neon)";});
+  box.addEventListener("dragleave",function(){box.style.borderColor="";});
+  box.addEventListener("drop",function(e){
+    e.preventDefault(); box.style.borderColor="";
+    var f=e.dataTransfer.files[0]; if(!f) return;
+    var r=new FileReader(); r.onload=function(){ box.value=r.result; toast("Loaded "+f.name); }; r.readAsText(f);
+  });
+}
+var SAMPLE_TEXT={
+  dvc:SEEDS[0].screenplay, ugc:SEEDS[1].screenplay,
+  product:"A sleek matte-black wireless earbud case rotates in a dark void. It clicks open; the buds rise on a beam of light. Quick cuts of the buds catching specular highlights, a ripple of sound-wave particles, and a final hero beauty shot as the case snaps shut. Fast, premium, kinetic."
+};
+window.loadSample=function(t){ var ta=document.querySelector("#npForm textarea"); if(ta){ ta.value=SAMPLE_TEXT[t]; toast("Sample loaded"); } };
+
+/* ---------- CLASSIFY ---------- */
+function guessType(text){
+  var s=text.toLowerCase();
+  if(/creator|grwm|testimonial|selfie|to camera|routine|unbox|review/.test(s)) return "ugc";
+  if(/(product|bottle|case|device|earbud|rotates|beauty shot|hero shot)/.test(s) && !/man|woman|walks|house|memory/.test(s)) return "product";
+  return "dvc";
+}
+function startClassify(e){
+  e.preventDefault();
+  var f=e.target;
+  state.draft={ screenplay:f.screenplay.value.trim(), platform:f.platform.value, ar:f.ar.value, dur:parseInt(f.dur.value,10)||30 };
+  state.draft.type=guessType(state.draft.screenplay);
+  go("classify");
+  return false;
+}
+var classifyReason={
+  dvc:"It reads as a narrative, emotion-led piece with characters and a signature image — a cinematic commercial, not a product demo or a creator video.",
+  ugc:"It reads as a creator speaking to camera with a product in hand — a testimonial-style social video shot phone-first.",
+  product:"It's product-as-hero with kinetic motion and no on-screen presenter — a text-to-video Marketing Studio piece, no image refs needed."
+};
+function viewClassify(){
+  var t=state.draft.type;
+  return '<div class="classify-wrap">'+
+    '<div class="classify-card">'+
+      '<div class="robo"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 4h8M9 14h.01M15 14h.01"/></svg></div>'+
+      '<h2>This reads as</h2><div class="verdict">'+typeName(t)+'</div>'+
+      '<div class="reason">'+classifyReason[t]+'</div>'+
+      '<div class="conf">Confidence '+(t==="dvc"?"91%":t==="ugc"?"88%":"85%")+' · you can override</div>'+
+      '<div class="type-pills" id="typePills">'+
+        [["dvc","AI DVC","Cinematic, image + video"],["ugc","UGC","Creator, image + video"],["product","Product Video","Hyper Motion, video only"]].map(function(x){
+          return '<button class="type-pill'+(x[0]===t?" sel":"")+'" data-t="'+x[0]+'"><b>'+x[1]+'</b><small>'+x[2]+'</small></button>';
+        }).join("")+
+      '</div>'+
+      '<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openWizard()"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>Continue to intake</button>'+
+    '</div></div>';
+}
+document.getElementById("content").addEventListener("click",function(e){
+  var pill=e.target.closest(".type-pill"); if(!pill) return;
+  state.draft.type=pill.dataset.t;
+  render();
+});
+
+/* ---------- INTAKE WIZARD ---------- */
+var wiz={qs:[],i:0,answers:[]};
+window.openWizard=function(){
+  var t=state.draft.type;
+  wiz.qs=INTAKE[t].slice(); wiz.i=0; wiz.answers=wiz.qs.map(function(q){return q.opts[q.rec];});
+  document.getElementById("wizardOverlay").classList.add("open");
+  renderWiz();
+};
+function closeWizard(){ document.getElementById("wizardOverlay").classList.remove("open"); }
+function renderWiz(){
+  var q=wiz.qs[wiz.i];
+  document.getElementById("wizProg").style.width=((wiz.i)/(wiz.qs.length)*100)+"%";
+  var body=document.getElementById("wizBody");
+  body.innerHTML='<div class="wiz-step">Question '+(wiz.i+1)+' of '+wiz.qs.length+'</div>'+
+    '<div class="wiz-q">'+esc(q.q)+'</div>'+
+    '<div class="wiz-opts">'+q.opts.map(function(o,i){
+      var sel=wiz.answers[wiz.i]===o;
+      return '<button class="wiz-opt'+(sel?" sel":"")+'" data-o="'+esc(o)+'">'+esc(o)+
+        (i===q.rec?'<span class="aipick">✦ AI pick</span>':'')+'</button>';
+    }).join("")+'</div>'+
+    '<div class="wiz-other"><input type="text" id="wizOther" placeholder="Other — type your own..." value="'+(q.opts.indexOf(wiz.answers[wiz.i])===-1?esc(wiz.answers[wiz.i]):"")+'"></div>';
+  if(!reduce) gsap.from(body,{opacity:0,x:20,duration:.32,ease:"power3.out"});
+  body.querySelectorAll(".wiz-opt").forEach(function(b){
+    b.addEventListener("click",function(){ wiz.answers[wiz.i]=b.dataset.o; document.getElementById("wizOther").value=""; renderWiz(); });
+  });
+  document.getElementById("wizBack").disabled=wiz.i===0;
+  document.getElementById("wizNext").textContent=wiz.i===wiz.qs.length-1?"Generate ✦":"Next →";
+}
+document.getElementById("wizBack").addEventListener("click",function(){ if(wiz.i>0){wiz.i--;renderWiz();} });
+document.getElementById("wizNext").addEventListener("click",function(){
+  var other=document.getElementById("wizOther"); if(other && other.value.trim()) wiz.answers[wiz.i]=other.value.trim();
+  if(wiz.i<wiz.qs.length-1){ wiz.i++; renderWiz(); }
+  else { closeWizard(); runGeneration(); }
+});
+document.getElementById("wizardOverlay").addEventListener("click",function(e){ if(e.target===this) closeWizard(); });
+
+/* ---------- GENERATION (demo) ---------- */
+function runGeneration(){
+  var c=document.getElementById("content");
+  c.innerHTML='<div class="slate-wrap"><div class="slate"><div class="slate-top"></div>'+
+    '<div class="slate-body">SCENE <b>01</b> · TAKE <b>01</b><br>'+typeName(state.draft.type)+'<br>'+esc(state.draft.ar)+' · '+state.draft.dur+'s<br><b>ROLL</b></div></div>'+
+    '<h2>Calling the shots…</h2><div class="slate-status" id="slateStatus">Reading the screenplay</div></div>';
+  var steps=["Reading the screenplay","Locking the creative spine","Assigning camera language","Writing paste-ready prompts","Applying anti-slop rules","Building the moodboard"];
+  var si=0;
+  var iv=setInterval(function(){
+    si++; var el=document.getElementById("slateStatus");
+    if(!el){ clearInterval(iv); return; }
+    if(si>=steps.length){ clearInterval(iv); finishGeneration(); return; }
+    el.textContent=steps[si]+"…";
+  },520);
+}
+function finishGeneration(){
+  /* demo: clone the seed matching the chosen type as the generated result, or template it */
+  var t=state.draft.type;
+  var base=SEEDS.filter(function(s){return s.type===t;})[0];
+  var proj;
+  if(base){ proj=JSON.parse(JSON.stringify(base)); }
+  else { proj=JSON.parse(JSON.stringify(SEEDS[0])); proj.type=t; }
+  proj.id="gen-"+Date.now();
+  proj.name=(state.draft.screenplay.split(/[.\n]/)[0]||"Untitled").slice(0,42);
+  proj.screenplay=state.draft.screenplay;
+  proj.ar=state.draft.ar; proj.platform=state.draft.platform; proj.dur=state.draft.dur;
+  proj.intake=wiz.qs.map(function(q,i){return {question:q.q,answer:wiz.answers[i]};});
+  projects.unshift(proj);
+  addXp(6);
+  go("deck",{pid:proj.id});
+  toast("Shot deck ready");
+}
+
+/* ---------- SHOT DECK ---------- */
+var deckState={};
+function viewDeck(){
+  var p=projById(state.pid);
+  var hasImg=p.type!=="product";
+  var out='<button class="back" onclick="go(\'library\')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Projects</button>'+
+    '<div class="deck-head"><div class="deck-title"><h1>'+esc(p.name)+'</h1>'+
+      '<div class="summary-bar"><span class="chip"><span class="type-badge '+typeClass(p.type)+'" style="padding:2px 8px">'+typeName(p.type)+'</span></span>'+
+        '<span class="chip">▦ '+esc(p.ar)+'</span><span class="chip">◷ '+p.dur+'s</span><span class="chip">▶ '+esc(p.platform||"—")+'</span><span class="chip">'+p.shots.length+' shots</span></div></div>'+
+      '<div class="deck-actions">'+
+        (hasImg?'<button class="btn btn-ghost" onclick="copyAll(\'img\')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg>Copy all image</button>':'')+
+        '<button class="btn btn-primary" onclick="copyAll(\'vid\')"><svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7zM1 5h15v14H1z"/></svg>Copy all video</button>'+
+      '</div></div>';
+
+  /* UGC model + product */
+  if(p.type==="ugc" && (p.modelGen||p.productImg)){
+    out+='<div class="section-label">Model & product</div><div class="mood-grid">';
+    if(p.modelGen) out+=miniCard("Model generation","",p.modelGen);
+    if(p.productImg) out+=miniCard("Product image","",p.productImg);
+    out+='</div>';
+  }
+  /* moodboard */
+  if(hasImg && p.mood && p.mood.length){
+    out+='<div class="section-label">Moodboard <span style="text-transform:none;letter-spacing:0;color:var(--muted);font-weight:400">— nano banana</span></div><div class="mood-grid">'+
+      p.mood.map(function(m){ return miniCard(m.title, m.title.indexOf("recommended")>-1?"1 credit":"", m.prompt); }).join("")+'</div>';
+  }
+  /* shots */
+  out+='<div class="section-label">Shots</div><div class="shot-list">'+p.shots.map(function(s,i){return shotCard(p,s,i);}).join("")+'</div>';
+  return out;
+}
+function miniCard(title,tag,prompt){
+  var id="mp-"+Math.random().toString(36).slice(2,8);
+  return '<div class="mini-card"><div class="mc-head"><h4>'+esc(title)+'</h4>'+(tag?'<span class="rec-tag">'+esc(tag)+'</span>':'')+'</div>'+
+    '<div class="prompt-block" id="'+id+'" data-raw="'+esc(prompt)+'">'+esc(prompt)+'</div>'+
+    '<button class="btn btn-soft" style="width:100%;justify-content:center;font-size:12.5px;padding:7px" onclick="copyEl(\''+id+'\',this)"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy prompt</button></div>';
+}
+function shotCard(p,s,idx){
+  var hasImg=p.type!=="product";
+  var vid="v-"+s.id, frm="f-"+s.id;
+  var out='<div class="shot-card" data-shot="'+s.id+'">'+
+    '<div class="sc-head"><div><div class="sc-num">SHOT '+(s.number<10?"0":"")+s.number+'</div><div class="sc-title">'+esc(s.name)+'</div></div>'+
+      '<div class="sc-dur">'+s.dur+'s</div></div>'+
+    '<div class="sc-body">';
+  if(hasImg && s.startFrame){
+    out+='<div class="tabs"><button class="tab active" data-tab="vid" data-sid="'+s.id+'">🎬 Video Prompt</button>'+
+      '<button class="tab" data-tab="frm" data-sid="'+s.id+'">🖼 Start-Frame</button></div>';
+  }
+  out+='<div class="tab-pane" data-pane="vid" data-sid="'+s.id+'"><div style="position:relative">'+
+    '<button class="copy-btn" onclick="copyEl(\''+vid+'\',this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>'+
+    '<div class="prompt-block full pb-pad" id="'+vid+'" data-raw="'+esc(s.video)+'">'+esc(s.video)+'</div></div></div>';
+  if(hasImg && s.startFrame){
+    out+='<div class="tab-pane" data-pane="frm" data-sid="'+s.id+'" style="display:none"><div style="position:relative">'+
+      '<button class="copy-btn" onclick="copyEl(\''+frm+'\',this)"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>'+
+      '<div class="prompt-block full pb-pad" id="'+frm+'" data-raw="'+esc(s.startFrame)+'">'+esc(s.startFrame)+'</div>'+
+      '<button class="tool-btn" style="margin-top:10px" onclick="refineFrame(\''+p.id+'\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Refine ↻</button></div></div>';
+  }
+  /* post notes */
+  if(s.post){ out+='<div class="stage-warn" style="margin-top:12px"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span><b>Post notes:</b> '+esc(s.post)+'</span></div>'; }
+  /* tools */
+  out+='<div class="sc-tools"><button class="tool-btn" onclick="toggleControls(\''+s.id+'\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg>Camera controls</button></div>';
+  /* rate */
+  out+='<div class="rate-row">Was this shot right? '+
+    '<button class="rate-btn" data-rate="up" data-sid="'+s.id+'"><svg viewBox="0 0 24 24"><path d="M7 10v11H4V10zM7 10l5-8a2 2 0 0 1 3 2l-1 6h5a2 2 0 0 1 2 2.4l-1.5 7A2 2 0 0 1 16.5 21H7"/></svg></button>'+
+    '<button class="rate-btn" data-rate="down" data-sid="'+s.id+'"><svg viewBox="0 0 24 24"><path d="M17 14V3h3v11zM17 14l-5 8a2 2 0 0 1-3-2l1-6H5a2 2 0 0 1-2-2.4l1.5-7A2 2 0 0 1 6.5 3H17"/></svg></button></div>';
+  /* controls panel */
+  out+='<div class="controls-panel" id="cp-'+s.id+'"><div class="cp-inner">'+controlsPanel(p,s)+'</div></div>';
+  out+='</div></div>';
+  return out;
+}
+function controlsPanel(p,s){
+  var cats=["shotSize","angle","movement","lensFocus","lighting","energy"];
+  var grid=cats.map(function(cat){
+    var cur=s.controls[cat];
+    var opts=VOCAB[cat].opts.map(function(o){ return '<option'+(o[0]===cur?" selected":"")+'>'+o[0]+'</option>'; }).join("");
+    var fl=flagFor(cat,cur);
+    return '<div class="control"><label>'+VOCAB[cat].label+'<span class="flag '+flagClass(fl)+'"><i></i>'+(fl==="ok"?"1 clip":fl==="warn"?"keep simple":"post")+'</span></label>'+
+      '<div class="select-wrap"><select data-cat="'+cat+'" data-sid="'+s.id+'">'+opts+'</select></div>'+
+      '<div class="explain" id="ex-'+cat+'-'+s.id+'">'+esc(explainFor(cat,cur))+'</div></div>';
+  }).join("");
+  var stageMove=flagFor("movement",s.controls.movement)==="stage";
+  return '<div class="control-grid">'+grid+'</div>'+
+    (stageMove?'<div class="stage-warn"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span>This is an edit-stage technique — the prompt will describe the closest in-clip version and note the rest for post.</span></div>':'')+
+    /* visual picker */
+    '<div class="picker" id="picker-'+s.id+'">'+visualPicker(p,s)+'</div>'+
+    '<div class="cp-actions"><button class="btn btn-primary" onclick="rebuildShot(\''+p.id+'\',\''+s.id+'\')"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Rebuild shot</button></div>';
+}
+/* visual picker: SVG diagram thumbnails for shot size + angle (swap for photos later) */
+function visualPicker(p,s){
+  var tab=deckState["pk-"+s.id]||"shotSize";
+  var tabs=[["shotSize","Shot size"],["angle","Angle"],["lighting","Lighting"],["movement","Movement"]];
+  var head='<div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:4px 0 10px">Pick the look</div>'+
+    '<div class="picker-tabs">'+tabs.map(function(t){ return '<button class="pk-tab'+(t[0]===tab?" active":"")+'" onclick="setPicker(\''+s.id+'\',\''+t[0]+'\')">'+t[1]+'</button>'; }).join("")+'</div>';
+  var cur=s.controls[tab];
+  var grid='<div class="pk-grid">'+VOCAB[tab].opts.map(function(o){
+    return '<button class="pk-cell'+(o[0]===cur?" sel":"")+'" onclick="pickShot(\''+s.id+'\',\''+tab+'\',\''+esc(o[0]).replace(/'/g,"\\'")+'\')">'+
+      '<span class="pk-thumb">'+shotDiagram(tab,o[0])+'</span><span class="pk-lbl">'+esc(o[0])+'</span></button>';
+  }).join("")+'</div>';
+  return head+grid;
+}
+window.setPicker=function(sid,tab){ deckState["pk-"+sid]=tab; document.getElementById("picker-"+sid).innerHTML=visualPicker(projById(state.pid),shotById(sid)); };
+window.pickShot=function(sid,cat,val){
+  var s=shotById(sid); s.controls[cat]=val;
+  var sel=document.querySelector('select[data-cat="'+cat+'"][data-sid="'+sid+'"]'); if(sel) sel.value=val;
+  var ex=document.getElementById("ex-"+cat+"-"+sid); if(ex) ex.textContent=explainFor(cat,val);
+  document.getElementById("picker-"+sid).innerHTML=visualPicker(projById(state.pid),s);
+  addXp(2);
+};
+function shotById(id){ var p=projById(state.pid); return p.shots.filter(function(s){return s.id===id;})[0]; }
+
+/* tiny SVG diagrams (placeholder art until real photos are dropped in) */
+function shotDiagram(cat,name){
+  var W=104,H=65,f='fill="none" stroke="#3B7BFF" stroke-width="1.4"';
+  function frame(){ return '<rect x="6" y="6" width="'+(W-12)+'" height="'+(H-12)+'" rx="4" '+f+' opacity=".35"/>'; }
+  function person(cx,top,h){ var hd=h*0.22; return '<circle cx="'+cx+'" cy="'+(top+hd)+'" r="'+hd+'" '+f+'/><path d="M'+cx+' '+(top+hd*2)+' L'+cx+' '+(top+h*0.7)+' M'+(cx-h*0.16)+' '+(top+h*0.36)+' L'+(cx+h*0.16)+' '+(top+h*0.36)+' M'+cx+' '+(top+h*0.7)+' L'+(cx-h*0.14)+' '+(top+h)+' M'+cx+' '+(top+h*0.7)+' L'+(cx+h*0.14)+' '+(top+h)+'" '+f+'/>'; }
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%;display:block">'+frame();
+  if(cat==="shotSize"){
+    var map={"Extreme Wide":[52,40,10],"Wide":[52,26,30],"Full Shot":[52,20,40],"Cowboy":[52,10,60],"Medium":[52,4,80],"Medium Close-Up":[52,-6,100],"Close-Up":[52,-30,150],"Extreme Close-Up":[52,-70,240]};
+    var m=map[name]||[52,20,40]; svg+='<g>'+person(m[0],m[1],m[2])+'</g>';
+  } else if(cat==="angle"){
+    svg+=person(52,16,34);
+    var arrows={"Eye-level":"M18 33 H86","Low-angle":"M20 48 L84 20","High-angle":"M20 20 L84 48","Overhead":"M52 10 L52 54","Worm's-eye":"M28 54 L52 14 L76 54","Dutch / canted":"M18 44 L86 26"};
+    svg+='<path d="'+(arrows[name]||arrows["Eye-level"])+'" stroke="#6FA0FF" stroke-width="1.6" fill="none" opacity=".8" stroke-dasharray="3 3"/>';
+  } else if(cat==="lighting"){
+    svg+=person(52,16,34);
+    var pos={"Golden-hour backlight":[52,8],"Window daylight":[16,20],"Hard direct flash":[52,58],"Practical night":[80,44],"Overcast soft":[52,6],"Low-key single source":[24,14],"High-key even":[52,4],"Ring light":[52,52]};
+    var pp=pos[name]||[52,8]; var glow=name==="Low-key single source"?".9":name==="High-key even"?".25":".55";
+    svg+='<circle cx="'+pp[0]+'" cy="'+pp[1]+'" r="7" fill="#FBBF24" opacity="'+glow+'"/><circle cx="'+pp[0]+'" cy="'+pp[1]+'" r="13" fill="#FBBF24" opacity=".12"/>';
+  } else { /* movement arrows */
+    svg+=person(52,18,30);
+    var mv={"Static":"","Pan":"M20 33 H84","Whip pan":"M20 33 H84","Tilt":"M52 12 V54","Slow zoom":"M30 20 L74 46 M74 20 L30 46","Crash zoom":"M30 20 L74 46 M74 20 L30 46","Dolly in":"M20 33 L84 33","Dolly out":"M84 33 L20 33","Truck":"M20 44 H84","Slider":"M24 46 H80","Pedestal":"M52 54 V12","Push-past":"M20 40 H84","Arc":"M22 46 A40 40 0 0 1 82 46","Orbit":"M52 52 A26 20 0 1 1 52 12","Tracking":"M18 44 H86","Follow / OTS":"M30 46 H78","Reverse track":"M84 44 H18","Low tracking":"M18 52 H86","Handheld":"M22 30 q10 -8 20 0 t20 0 t20 0","Steadicam":"M20 40 H84","Crane":"M52 54 L52 14 L78 14","Drone push / pull":"M28 46 L76 18","First-person POV":"M40 26 A16 12 0 1 1 40 44","Dolly-zoom":"M26 22 L78 44 M78 22 L26 44","Bullet time":"M52 50 A22 22 0 1 1 74 33","Speed ramp":"M18 40 h24 l6 -14 l6 14 h30","Hyperlapse":"M20 46 L84 20"};
+    var d=mv[name]; if(d) svg+='<path d="'+d+'" stroke="#6FA0FF" stroke-width="1.7" fill="none" opacity=".85" marker-end="url(#ah)"/>';
+    svg+='<defs><marker id="ah" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#6FA0FF"/></marker></defs>';
+  }
+  return svg+'</svg>';
+}
+
+/* deck interactions */
+function wireDeck(){
+  var c=document.getElementById("content");
+  c.querySelectorAll(".tab").forEach(function(t){
+    t.addEventListener("click",function(){
+      var sid=t.dataset.sid, tab=t.dataset.tab;
+      c.querySelectorAll('.tab[data-sid="'+sid+'"]').forEach(function(x){x.classList.toggle("active",x===t);});
+      c.querySelectorAll('.tab-pane[data-sid="'+sid+'"]').forEach(function(pane){ pane.style.display=pane.dataset.pane===tab?"":"none"; });
+    });
+  });
+  c.querySelectorAll("select[data-cat]").forEach(function(sel){
+    sel.addEventListener("change",function(){
+      var sid=sel.dataset.sid, cat=sel.dataset.cat;
+      shotById(sid).controls[cat]=sel.value;
+      var ex=document.getElementById("ex-"+cat+"-"+sid); if(ex) ex.textContent=explainFor(cat,sel.value);
+      document.getElementById("picker-"+sid).innerHTML=visualPicker(projById(state.pid),shotById(sid));
+    });
+  });
+  c.querySelectorAll(".rate-btn").forEach(function(b){
+    b.addEventListener("click",function(){
+      var row=b.parentElement; row.querySelectorAll(".rate-btn").forEach(function(x){x.classList.remove("on-up","on-down");});
+      b.classList.add(b.dataset.rate==="up"?"on-up":"on-down");
+      addXp(4); toast(b.dataset.rate==="up"?"Noted — more like this":"Noted — ShotCaller will adjust");
+    });
+  });
+}
+window.toggleControls=function(sid){
+  var el=document.getElementById("cp-"+sid); el.classList.toggle("open");
+};
+window.rebuildShot=function(pid,sid){
+  var s=shotById(sid);
+  /* demo: rewrite the video prompt's opening + movement clause to reflect the picked controls */
+  var mv=s.controls.movement, size=s.controls.shotSize, ang=s.controls.angle, lens=s.controls.lensFocus, light=s.controls.lighting;
+  var stage=flagFor("movement",mv)==="stage";
+  var moveClause=stage
+    ? "Camera: holds the closest in-clip version of a "+mv.toLowerCase()+" (full "+mv.toLowerCase()+" staged in post)"
+    : "Camera: a "+(s.controls.energy.toLowerCase().indexOf("kinetic")>-1?"decisive":"measured")+" "+mv.toLowerCase()+", motivated and controlled";
+  var rebuilt=size+" shot, "+lens.toLowerCase()+", "+ang.toLowerCase()+". "+moveClause+". "+
+    s.video.replace(/^[^.]+\.\s*Camera:[^.]+\.\s*/,"").replace(/^[^.]+\.\s*/,"");
+  s.video=rebuilt;
+  if(stage && !s.post) s.post="Full "+mv+" is an edit-stage move — complete it in post.";
+  addXp(3);
+  render();
+  toast("Shot "+ (s.number<10?"0":"")+s.number+" rebuilt with your controls");
+};
+window.refineFrame=function(pid,sid){
+  var what=prompt("Refine this start-frame — what should change?\n(e.g. relight with warm golden side light / regrade teal shadows / darken the background)");
+  if(!what) return;
+  var s=shotById(sid);
+  var refined="Using the provided reference image, keep the same subject, pose, outfit, and composition intact, but "+what.trim()+". Do not change the character design. Preserve realistic skin texture, natural pores, subtle imperfections.";
+  navigator.clipboard.writeText(refined).then(function(){toast("Refine prompt copied");},function(){});
+  addXp(2);
+};
+window.copyAll=function(kind){
+  var p=projById(state.pid);
+  var txt=p.shots.map(function(s){
+    var head="SHOT "+(s.number<10?"0":"")+s.number+" — "+s.name;
+    return head+"\n"+(kind==="img"?(s.startFrame||"(no image prompt)"):s.video);
+  }).join("\n\n");
+  copyText(txt);
+};
+
+/* ---------- CAMERA GUIDE ---------- */
+function viewGuide(){
+  var cats=[["shotSize","Shot Size","How much of the world the frame holds — from vast isolation to a single eye."],
+    ["angle","Angle","Where the camera sits relative to the subject — and the power that implies."],
+    ["movement","Movement","One move per shot. What the camera does is what the audience feels."],
+    ["lensFocus","Lens / Focus","How depth and compression shape attention."],
+    ["lighting","Lighting","Always a motivated source — never just 'well lit'."],
+    ["energy","Energy","The pace the whole shot carries."]];
+  return '<div class="page-head"><div class="eyebrow">Reference</div><h1>Camera Guide</h1><p>The vocabulary ShotCaller speaks. Every option here can be picked per shot — the dropdowns teach it while you work.</p></div>'+
+    '<div style="margin-top:26px">'+cats.map(function(c){
+      return '<div class="guide-cat"><h3>'+c[1]+'</h3><p>'+c[2]+'</p><div class="guide-list">'+
+        VOCAB[c[0]].opts.map(function(o){
+          var fl=o[2];
+          return '<div class="guide-item"><span class="flag '+flagClass(fl)+'" style="margin:2px 0 0"><i></i></span>'+
+            '<div><b>'+esc(o[0])+'</b><span>'+esc(o[1])+'</span></div></div>';
+        }).join("")+'</div></div>';
+    }).join("")+'</div>';
+}
+
+/* boot */
+addXp(0);
+document.getElementById("spBar").style.width="0%";
+render();
+</script>
+</body>
+</html>
